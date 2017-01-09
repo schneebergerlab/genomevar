@@ -719,6 +719,7 @@ void displayHelp(int exitCode) {
 }
 
 void displayVersion() {
-  printf("SynSearch, version 0.01, 01.05.2015\n");
+  //printf("SynSearch, version 0.01, 01.05.2015\n");
+  printf("SynSearch, version 0.02, 09.02.2017\n");
 }
 
