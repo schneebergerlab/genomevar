@@ -20,15 +20,14 @@
  * CTX parsing could already profit from B genome edges
  * Annotate Syn_in_inversions not in the syntenic path (?)
  * Allow for generic output file names
- * 
+ *
  * Define gaps between syntenics blocks: different types of complex regions
  * It is not clear how MUMmer handles duplications: simulate and test. Delta-filter with parameter -1 filters for one-to-one alignments (not to confuse with -l)
  * Nucmer's --simplify might remove many duplications, which is necessary for Synsearch (so far)
  */
 
 int main(int argc, char *argv[]) {
-
-    init(argc, argv);
+       init(argc, argv);
     printf("init\n");
 
     //fills some global variables, most importantly it fills blocks
@@ -40,6 +39,7 @@ int main(int argc, char *argv[]) {
     printf("parse ctx\n");
 
     for (int chr = 0; chr < CHROMOSOME_NUM; chr++) {
+
     	//Connect B genome
 		setEdgesBGenome(CHROMOSOME[chr]);
 
@@ -68,7 +68,9 @@ int main(int argc, char *argv[]) {
 		// This is not optimally solved. Inv at the end of chr
 		// are not found, and ITX within the inversion are also
 		// not reported. (In fact this would be higher level #3).
-		writeInversions(CHROMOSOME[chr]);
+              printf("%s\n",CHROMOSOME[chr]);
+
+ 		writeInversions(CHROMOSOME[chr]);
 		printf("write inversions\n");
 
 	    // write out ITX (all the rest, but need to be combined similar to the CTX)
@@ -77,12 +79,11 @@ int main(int argc, char *argv[]) {
 
     }
 
-
+       printf("\n\n FINISHED SUCCESSFULLY");
 	return EXIT_SUCCESS;
 }
 
 void parseITX(char chr[]) {
-
 	int i, in = -1;
 
 	for (i = 0; i < BLOCK_NUM; i++) {
@@ -196,7 +197,7 @@ void writeInversions(char chr[]) {
 				if (!(leftA == -1 && rightB == -1)) { //Special case: whole chr inverted, means no inversion as then the alignment dir wrong
 
 					if (rightB == -1 || leftA == -1) {
-						printf("WARNING: Inv at the end of chr: not solved. Will be reported as ITX.\n");
+				//		printf("WARNING: Inv at the end of chr: not solved. Will be reported as ITX.\n");  NEED TO UNCOMMENT
 					}
 					else {
 
@@ -210,6 +211,7 @@ void writeInversions(char chr[]) {
 							while (blocks[invEndA].dir == 1 || blocks[invEndA].state == CTX || blocks[invEndA].state == SYN) {
 								invEndA--;
 							}
+
 							//printf("invEndA %d\n", invEndA);
 
 							//Run left until next syntenic block
@@ -219,6 +221,7 @@ void writeInversions(char chr[]) {
 								leftB = blocks[leftB].leftBNeighbor;
 							}
 							//printf("leftB %d\n", leftB);
+
 
 							if (leftB == -1) {
 								printf("WARNING: Inv at the end of chr: not solved. Will be reported as ITX.\n");
@@ -230,9 +233,17 @@ void writeInversions(char chr[]) {
 								/**if (leftB == -1) {
 									invBeginA = 0;
 								}*/
+
+						//		printf("random check\n");
+
 								while (blocks[invBeginA].dir != -1 || blocks[invBeginA].state == CTX || blocks[invBeginA].state == SYN) {
 									invBeginA++;
+									if(invBeginA > BLOCK_NUM){
+										break;
+									}
 								}
+						//		printf("random check2\n");
+
 								//printf("invBeginA %d\n", invBeginA);
 
 								// If the end of the circuit equals the beginning: Inversion found
@@ -272,6 +283,7 @@ void writeInversions(char chr[]) {
 			}
 		}
 	}
+       //printf("****Finished Writing Inversions****\n");
 
 }
 
@@ -279,6 +291,7 @@ void writeInversions(char chr[]) {
 void setEdgesBGenome(char chr[]) {
 
 	int first = -1, last = -1;
+
 
 	for (int i = 0; i < BLOCK_NUM; i++) {
 		blocks[i].leftBNeighbor = -1;
@@ -540,16 +553,16 @@ void readInputFile() {
   int i1, i2, i3, i4, i5, i6, i8, i9;
   float f7, f10, f11;
   char c12[4096], c13[4096];
-  int ret, adir, bdir;
+  int ret=0, adir, bdir;
   int c = 0;
   int line = 0;
   char currchr[4096];
   int currpos = 0;
 
-
   //read in file
-  while((ret = fscanf(inputFile, "%d\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%s\t%s\n",
-		  &i1, &i2, &i3, &i4, &i5, &i6, &f7, &i8, &i9, &f10, &f11, &c12[0], &c13[0])) == 13) {
+
+  while((ret = fscanf(inputFile, "%d\t%d\t%d\t%d\t%d\t%d\t%f\t%d\t%d\t%s\t%s\n",
+		  &i1, &i2, &i3, &i4, &i5, &i6, &f7, &i8, &i9, &c12[0], &c13[0])) == 11) {
 
 	  line++;
 
@@ -601,7 +614,7 @@ void readInputFile() {
 	  else { // different chromosome
 		  for (int i = 0; i < CHROMOSOME_NUM; i++) { // there already?
 				 if (strcmp(CHROMOSOME[i], c12) == 0) {
-					 printf("Error in input file. Chromosomes are not sorted (line %d).\n", line);
+					 printf("Error in input file. Chromosomes are not sorted (line %d).\n", line);      // should add an exit command?
 				 }
 		  }
 		  strcpy(CHROMOSOME[CHROMOSOME_NUM], c12);
@@ -665,7 +678,6 @@ void printBlock(int i) {
 }
 
 void init(int argc, char *argv[]) {
-
   char vers[] = "--version";
 
   if (argc == 1) {
@@ -682,25 +694,25 @@ void init(int argc, char *argv[]) {
   strcpy(inputFileName, argv[argc-1]);
 
   // open output files:
-	char outfilename[] = "/Users/schneeberger/tmp/WholeGenomeAIign/Final/SynSearch.syn.txt";
+	char outfilename[] = "SynSearch.syn.txt";
 	if ((synOutFile = fopen(outfilename, "w")) == NULL) {
 		printf("Cannot open output file\n");
 		exit(1);
 	}
 
-	char outfilename2[] = "/Users/schneeberger/tmp/WholeGenomeAIign/Final/SynSearch.ctx.txt";
+	char outfilename2[] = "SynSearch.ctx.txt";
 	if ((ctxOutFile = fopen(outfilename2, "w")) == NULL) {
 		printf("Cannot open output file\n");
 		exit(1);
 	}
 
-	char outfilename3[] = "/Users/schneeberger/tmp/WholeGenomeAIign/Final/SynSearch.inv.txt";
+	char outfilename3[] = "SynSearch.inv.txt";
 	if ((invOutFile = fopen(outfilename3, "w")) == NULL) {
 		printf("Cannot open output file\n");
 		exit(1);
 	}
 
-	char outfilename4[] = "/Users/schneeberger/tmp/WholeGenomeAIign/Final/SynSearch.itx.txt";
+	char outfilename4[] = "SynSearch.itx.txt";
 	if ((itxOutFile = fopen(outfilename4, "w")) == NULL) {
 		printf("Cannot open output file\n");
 		exit(1);
