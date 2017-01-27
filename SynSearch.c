@@ -27,6 +27,10 @@
  */
 
 int main(int argc, char *argv[]) {
+
+//	int argc;
+	//char *argv[8];
+
        init(argc, argv);
     printf("init\n");
 
@@ -55,11 +59,12 @@ int main(int argc, char *argv[]) {
 
 		// fills maxWeightPath[] with the co-linear blocks
 		// and sets their status to SYN
-		backtraceSynPath();
+		backtraceSynPath(CHROMOSOME[chr]);
 
 		// print path block and combine runs of blocks
-		printSynPath();
+		printSynPath(CHROMOSOME[chr]);
 
+		maxWeightBlock = 0;
 		maxWeight = 0;
 
 		printf("parse syn regions\n");
@@ -68,7 +73,6 @@ int main(int argc, char *argv[]) {
 		// This is not optimally solved. Inv at the end of chr
 		// are not found, and ITX within the inversion are also
 		// not reported. (In fact this would be higher level #3).
-              printf("%s\n",CHROMOSOME[chr]);
 
  		writeInversions(CHROMOSOME[chr]);
 		printf("write inversions\n");
@@ -418,21 +422,22 @@ void writeCTX(int a, int b) {
 
 }
 
-void backtraceSynPath() {
+void backtraceSynPath(char chr[]) {
 
 	int maxWeightPathReverse[MAX_BLOCK_NUM];
 	int length = 0;
 
 	int cblock = maxWeightBlock;
 
-	while (blocks[cblock].inEdgeNum > 0) {
+	while (blocks[cblock].inEdgeNum > 0 && strcmp(blocks[cblock].achr, chr)==0) {
 		maxWeightPathReverse[length] = cblock;
 		cblock = blocks[cblock].maxInEdge;
 		length++;
 	}
-
+	if(strcmp(blocks[cblock].achr,chr)==0){
 	maxWeightPathReverse[length] = cblock;
 	length++;
+	}
 
 	for (int i = length-1; i >= 0; i--) {
 		maxWeightPath[length-i-1] = maxWeightPathReverse[i];
@@ -442,7 +447,7 @@ void backtraceSynPath() {
 	maxWeightPathLength = length;
 }
 
-void printSynPath() {
+void printSynPath(char chr[]) {
 
 	int in = 0, s = -1;
 
@@ -472,7 +477,7 @@ void printSynPath() {
 
 	if (in == 1) {
 		int e = maxWeightPathLength-1;
-		fprintf(synOutFile, "#SYN ");
+		fprintf(synOutFile, "#SYN**********");
 		fprintf(synOutFile, "%s %d %d - ", blocks[maxWeightPath[s]].achr, blocks[maxWeightPath[s]].astart, blocks[maxWeightPath[e]].aend);
 		fprintf(synOutFile, "%s %d %d\n", blocks[maxWeightPath[s]].bchr, blocks[maxWeightPath[s]].bstart, blocks[maxWeightPath[e]].bend);
 		for (int j = s; j < maxWeightPathLength; j++) {
@@ -485,6 +490,9 @@ void setPathWeights(char chr[]) {
 
 	for (int i = 0; i < BLOCK_NUM; i++) {
 		if (strcmp(blocks[i].achr, chr) == 0 && blocks[i].dir == 1 && blocks[i].state != CTX){ // only one chromosome at a time and only fwd blocks
+			if(strcmp(blocks[i].achr, "ChrC")==0){
+				printf("BLOCK NUMBER: %d\n",i);
+			}
 			blocks[i].weight = blocks[i].alen;
 			for (int j = 0; j < blocks[i].inEdgeNum; j++) {
 				if (blocks[i].weight < blocks[blocks[i].inEdge[j]].weight + blocks[i].alen) {
@@ -498,7 +506,6 @@ void setPathWeights(char chr[]) {
 			}
 		}
 	}
-
 	//printf("last block of best path %d\n", maxWeightBlock);
 	//printf("max weight %d\n", maxWeight);
 }

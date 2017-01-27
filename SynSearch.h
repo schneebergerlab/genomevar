@@ -13,7 +13,7 @@
 #define SYNSEARCH_H_
 
 #define MAX_EDGE_NUM 1000
-#define MAX_BLOCK_NUM 1000000
+#define MAX_BLOCK_NUM 100000
 
 typedef struct block {
 	int indexA;
