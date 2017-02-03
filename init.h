@@ -50,6 +50,10 @@ typedef struct block {
 
 BLOCK blocks[MAX_BLOCK_NUM];
 
+typedef struct synPath{
+	int *maxWeightPath;
+	int maxWeightPathLength;
+}SYNPATH;
 
 extern int BLOCK_NUM;
 extern int CHROMOSOME_NUM;
@@ -83,7 +87,8 @@ extern const int SYN_IN_INV;
 extern const int CTX;
 extern const int INV;
 extern const int ITX;
-extern const int ITX_IN;
+extern const int INV_ITX;
+extern const int ITX_IN_INV;
 extern const int STER;
 extern const int ETER;
 

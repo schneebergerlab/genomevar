@@ -11,26 +11,44 @@
 //#include "SynSearch.h"
 #include "getSyn.h"
 
-BLOCK *chromo;
-int maxWeight;
-int maxWeightBlock;
+//BLOCK *chromo;
+int maxWeight =0;
+int maxWeightBlock=0;
 int *maxWeightPath;
-int maxWeightPathLength;
+int maxWeightPathLength=0;
 
 
-void parseSYN(BLOCK *chromo, char chr[], int num){
+SYNPATH parseSYN(BLOCK *chromo, char chr[], int num){
 	maxWeightPath = (int *) calloc(num, sizeof(int));
 
 	setEdgesBGenome(chromo, chr, num);
 
+	// build all possible paths
+	setEdges(chromo, chr, num);
+
+	// calculate cummulative weigths for each path
+	// while only the heaviest path is followed
+	setPathWeights(chromo, chr, num);
+
+	backtraceSynPath(chromo, chr, num);
+
+	//printSynPath(chromo, chr, num);
 
 
-	free(maxWeightPath);
 
-	printf("FINISHED SYN\n");
+	SYNPATH synPath;
+	synPath.maxWeightPath = maxWeightPath;
+	synPath.maxWeightPathLength = maxWeightPathLength;
+
+//	printf("FINISHED SYN\n");
+	maxWeight =0;
+	maxWeightBlock=0;
+	maxWeightPath = NULL;
+	maxWeightPathLength=0;
+	return(synPath);
 }
 
-void setEdges(char chr[], int num) {
+void setEdges(BLOCK *chromo, char chr[], int num) {
 	for (int i = num -1 ; i > 0; i--) {
 		if (strcmp(chromo[i].achr, chr) == 0 && chromo[i].dir == 1 && chromo[i].state != CTX){ // only one chromosome at a time
 			maxWeightBlock = i;
@@ -64,7 +82,7 @@ int testSynteny(int i, int j, BLOCK *chromo) {
 		return 0;
 }}
 
-void setPathWeights( char chr[], int num) {
+void setPathWeights( BLOCK *chromo, char chr[], int num) {
 
 	for (int i = 1; i < num-1; i++) {
 		if (strcmp(chromo[i].achr, chr) == 0 && chromo[i].dir == 1 && chromo[i].state != CTX){ // only one chromosome at a time and only fwd chromo
@@ -79,7 +97,7 @@ void setPathWeights( char chr[], int num) {
 						maxWeight = chromo[i].weight;
 }}}}}}
 
-void backtraceSynPath( char chr[], int num){
+void backtraceSynPath( BLOCK *chromo, char chr[], int num){
 	int maxWeightPathReverse[num-2];
 	int length = 0;
 	int cblock = maxWeightBlock;
@@ -103,14 +121,13 @@ void backtraceSynPath( char chr[], int num){
 	maxWeightPathLength = length;
 }
 
-void printSynPath(char chr[], int num) {
-printf("MWPL: %d\n",maxWeightPathLength);
+void printSynPath(BLOCK *chromo, SYNPATH synPath) {
+
+	maxWeightPathLength = synPath.maxWeightPathLength;
+	maxWeightPath = synPath.maxWeightPath;
 	int in = 0, s = -1;
-
 	for (int p = 0; p < maxWeightPathLength; p++) {
-
 		int i = maxWeightPath[p];
-
 		if (in == 0) {
 
 			in = 1;
@@ -141,4 +158,7 @@ printf("MWPL: %d\n",maxWeightPathLength);
 			writeBlock(synOutFile, chromo[maxWeightPath[j]]);
 		}
 	}
+
+	maxWeightPath = NULL;
+	maxWeightPathLength = 0;
 }

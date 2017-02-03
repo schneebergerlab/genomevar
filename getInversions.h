@@ -10,9 +10,8 @@
 
 #include "init.h"
 //Inversion identification
-void writeInversions(char chr[], int num, BLOCK *chromo);
-int *longestInverted;
-BLOCK *inverted;
 
+void parseINV(BLOCK *chromo, char chr[], int num);
+SYNPATH invSYN(char chr[], int length);
 
 #endif /* GETINVERSIONS_H_ */

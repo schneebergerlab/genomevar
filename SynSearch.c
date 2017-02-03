@@ -69,7 +69,17 @@ int main(int argc, char *argv[]) {
     			chromo_index++;
     		}
     	}
-   	    parseSYN(chromo, CHROMOSOME[chr], num);
+   		SYNPATH synPath = parseSYN(chromo, CHROMOSOME[chr], num);
+
+   		printSynPath(chromo, synPath);
+
+   		parseITX(chromo, CHROMOSOME[chr], num);
+
+   		parseINV(chromo, CHROMOSOME[chr], num);
+
+   		groupITX(chromo, CHROMOSOME[chr], num);
+
+
 /*
    		//printf("setting B edges\n");
    		setEdgesBGenome(CHROMOSOME[chr], num);
@@ -90,10 +100,12 @@ int main(int argc, char *argv[]) {
 
  		writeInversions(CHROMOSOME[chr], num);
 
-
+*/
     	free(chromo);
-    	free(maxWeightPath);
-    	//free(longestInverted);*/
+    	chromo = NULL;
+    	//free(maxWeightPath);
+    	//free(longestInverted);
+    	free(synPath.maxWeightPath);
     }
 
 

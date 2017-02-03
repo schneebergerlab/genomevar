@@ -19,7 +19,8 @@ const int SYN_IN_INV = 2;
 const int CTX = 3;
 const int INV = 4;
 const int ITX = 5;
-const int ITX_IN = 6;
+const int INV_ITX = 6;
+const int ITX_IN_INV =7;
 const int STER = 101;
 const int ETER = 102;
 
@@ -192,8 +193,8 @@ void setEdgesBGenome(BLOCK *chromo, char chr[], int num) {
 
 	int first = -1, last = -1;
 
-	printf("CHROMOSOME: %s\n",chr);
-	printf("NUM: %d\n",num);
+	//printf("CHROMOSOME: %s\n",chr);
+	//printf("NUM: %d\n",num);
 	for (int i = 1; i < num; i++) {
 		chromo[i].leftBNeighbor = -1;
 		chromo[i].rightBNeighbor = -1;

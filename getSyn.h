@@ -13,11 +13,12 @@
 #define GETSYN_H_
 
 //Syntenic Path identification
-void parseSYN(BLOCK *chromo,char chr[], int num);
-void setPathWeights(char chr[], int num);
-void setEdges(char chr[], int num);
-void backtraceSynPath(char chr[], int num);
-void printSynPath();
+SYNPATH parseSYN(BLOCK *chromo,char chr[], int num);
+void setPathWeights(BLOCK *chromo, char chr[], int num);
+void setEdges(BLOCK *chromo, char chr[], int num);
+void backtraceSynPath(BLOCK *chromo, char chr[], int num);
 int testSynteny(int i, int j, BLOCK *chromo);
+
+void printSynPath(BLOCK *chromo, SYNPATH synPath);
 
 #endif /* GETSYN_H_ */
