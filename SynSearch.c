@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "SynSearch.h"
 /*
@@ -36,11 +37,15 @@ int main(int argc, char *argv[]) {
     printf("read file\n");
 
     // First: parse out cross chromosomal translocations
-    parseCTX();
 
     printf("parse ctx\n");
+    parseCTX();
+   // printf("lol\n");
+//printf("%d\n", CHROMOSOME_NUM);
 
     for (int chr = 0; chr < CHROMOSOME_NUM; chr++) {
+
+    //	printf("%d\n",chr);
     	int num=0;
     	for ( int i =0; i < BLOCK_NUM; i++){
     		if(strcmp(blocks[i].achr, CHROMOSOME[chr])== 0){
@@ -69,15 +74,24 @@ int main(int argc, char *argv[]) {
     			chromo_index++;
     		}
     	}
+
+
    		SYNPATH synPath = parseSYN(chromo, CHROMOSOME[chr], num);
 
    		printSynPath(chromo, synPath);
 
+
+
+
    		parseITX(chromo, CHROMOSOME[chr], num);
+
 
    		parseINV(chromo, CHROMOSOME[chr], num);
 
+
    		groupITX(chromo, CHROMOSOME[chr], num);
+   		int a =15;
+   		assert(a >= 10);
 
 
 /*
