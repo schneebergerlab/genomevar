@@ -20,6 +20,7 @@ int maxWeightPathLength=0;
 
 SYNPATH parseSYN(BLOCK *chromo, char chr[], int num){
 	maxWeightPath = (int *) calloc(num, sizeof(int));
+	//test for commit
 
 	setEdgesBGenome(chromo, chr, num);
 
@@ -151,7 +152,7 @@ void printSynPath(BLOCK *chromo, SYNPATH synPath) {
 
 	if (in == 1) {
 		int e = maxWeightPathLength-1;
-		fprintf(synOutFile, "#SYN**********");
+		fprintf(synOutFile, "#SYN");
 		fprintf(synOutFile, "%s %d %d - ", chromo[maxWeightPath[s]].achr, chromo[maxWeightPath[s]].astart, chromo[maxWeightPath[e]].aend);
 		fprintf(synOutFile, "%s %d %d\n", chromo[maxWeightPath[s]].bchr, chromo[maxWeightPath[s]].bstart, chromo[maxWeightPath[e]].bend);
 		for (int j = s; j < maxWeightPathLength; j++) {
