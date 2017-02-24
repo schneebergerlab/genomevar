@@ -16,15 +16,32 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 //	printf("INSIDE\n");
 
 	for (int i = 1; i < num-1; i++) {
+
+		int forward[num], backward[num];
+
+//		int startSyn, endSyn;
+
+		for (int j =1; j<num-1;j++){
+			forward[j] =0;
+			backward[j] = 0;
+		}
 		if (strcmp(chromo[i].bchr, chr) == 0 && chromo[i].state != CTX){
 			if (chromo[i].dir == -1) {
 				/*	 now decide whether the inversion is translocated or not
 				 *
 				 * Set right B neighbor */
 
+				printf("NEW BLOCK: %d\n", i);
+
 				int rightB = chromo[i].rightBNeighbor;
+				if(chromo[rightB].dir == -1) forward[rightB] = 1;
+
+				printf("rightB: %d\n", rightB);
+
 				while (chromo[rightB].state != SYN && chromo[rightB].state != ETER){
 					rightB = chromo[rightB].rightBNeighbor;
+					if(chromo[rightB].dir == -1) forward[rightB] = 1;
+					printf("rightB: %d\n", rightB);
 				}
 
 				// Set left A neighbor
@@ -125,24 +142,32 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 					if (rightB > i) { // otherwise running back is senseless and no inversion is found
 						//Run back on A genome until an inversion is found
 						int invEndA = rightB;
+
 						/** if (rightB == -1) { // inv at the end of the chromosome
 								invEndA = BLOCK_NUM-1;
 							}*/
 
-						while (chromo[invEndA].dir == 1 || chromo[invEndA].state == CTX || chromo[invEndA].state == SYN || chromo[invEndA].state == ETER) {
+						while (chromo[invEndA].dir == 1 || chromo[invEndA].state == CTX ||
+								chromo[invEndA].state == SYN || chromo[invEndA].state == ETER ||
+								forward[invEndA] == 1 || chromo[invEndA].bstart > chromo[rightB].bstart || chromo[invEndA].bstart < chromo[leftA].bstart) {
 							invEndA--;
 						}
 
 						//Run left until next syntenic block
 						int leftB = chromo[invEndA].leftBNeighbor;
+						if(chromo[leftB].dir == -1) backward[leftB] = 1;
+
 						/** MISSING SOLUTION END OF CHR */
 						while (chromo[leftB].state != STER && chromo[leftB].state != SYN) {
 							leftB = chromo[leftB].leftBNeighbor;
+							if(chromo[leftB].dir == -1) backward[leftB] = 1;
 						}
 
 						int invBeginA = leftB;
 
-						while (chromo[invBeginA].dir != -1 || chromo[invBeginA].state == CTX || chromo[invBeginA].state == SYN || chromo[invBeginA].state == STER) {
+						while (chromo[invBeginA].dir != -1 || chromo[invBeginA].state == CTX ||
+								chromo[invBeginA].state == SYN || chromo[invBeginA].state == STER ||
+								backward[invBeginA] == 1 ||  chromo[invBeginA].bstart > chromo[rightB].bstart || chromo[invBeginA].bstart < chromo[leftA].bstart) {
 							invBeginA++;
 							if(invBeginA > num-1){
 								break;
@@ -159,6 +184,17 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 						}*/
 
 						if (invBeginA == i) {
+
+						//	printf("START\n");
+
+														//printf("Chr: %s \t i: %d\t invBegin: %d\t invEnd: %d\t begin.start: %d \t end.start: %d \t begin.dir: %d \t end.dir: %d\n",
+												//				chr,i, invBeginA, invEndA, chromo[invBeginA].bstart, chromo[invEndA].bstart, chromo[invBeginA].dir, chromo[invEndA].dir);
+
+													//	printf("rN: %d\n", chromo[invEndA].rightBNeighbor);
+
+
+
+
 							//printf("Chr: %s \t A.start: %d \n",chr, chromo[i].astart);
 
 		/*					printf("\n%d\t", chromo[i].astart);
@@ -180,24 +216,33 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 							int invCount=0;
 
 							for (int j = invBeginA; j <= invEndA; j++) {
+
 								longestInverted[j - invBeginA] = 0;
 								if (chromo[j].state == SYN) {
 									chromo[j].state = SYN_IN_INV;
-//									printf("found SYN \n");
+						//			printf("found SYN \n");
 								}
 								else {
 									if (chromo[j].state == CTX || chromo[j].state == ITX){
-//										printf("found ITX \n");
+						//				printf("found ITX \n");
 										continue;
 									}else {
 										if (chromo[j].dir == -1) {
+						/*					printf("j.start: %d \t j.end: %d \n"
+													"begin.astart : %d begin.aend: %d \t end.astart: %d \t end.aend: %d\n"
+													"begin.bstart : %d begin.bend: %d \t end.bstart: %d \t end.bend: %d\n",
+													chromo[j].bstart,chromo[j].bend,
+													chromo[invBeginA].astart, chromo[invBeginA].aend, chromo[invEndA].astart, chromo[invEndA].aend,
+													chromo[invBeginA].bstart, chromo[invBeginA].bend, chromo[invEndA].bstart, chromo[invEndA].bend);	*/
+
 											if(chromo[j].bstart > chromo[invBeginA].bstart  ||  chromo[j].bstart < chromo[invEndA].bstart){
-//												printf("*****************found ITX_IN \n*****************************");
+										//		printf("*****************found ITX_IN *****************************\n");
 
 												chromo[j].state = INV_ITX;
 											}
 											else{
-//												printf("found INV \n");
+
+									//			printf("found INV \n");
 												longestInverted[j-invBeginA] = 1;
 												invCount++;
 											}
@@ -206,7 +251,9 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 								}
 							}
 
-//							printf("inCount: %d\n",invCount);
+
+
+				//			printf("inCount: %d\n",invCount);
 							inverted = (BLOCK *)calloc(invCount, sizeof(BLOCK));
 							invCount=0;
 
@@ -216,19 +263,21 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 									invCount++;
 								}
 							}
+
+
+
 							SYNPATH synPath = invSYN(chr, invCount);
 
-//							printf("maxWeightPathLength: %d\n",synPath.maxWeightPathLength);
 
 							for(int j =0; j< synPath.maxWeightPathLength; j++){
-//								printf("CHR: %s \t pos: %d\n", chr, inverted[synPath.maxWeightPath[j-1]].astart);
 								inverted[synPath.maxWeightPath[j-1]].state = INV;
 								writeBlock(invOutFile, inverted[synPath.maxWeightPath[j-1]]);
 							}
 
+
 							invCount =0;
 							for (int j = invBeginA; j <= invEndA; j++) {
-								if(longestInverted[j] == 1){
+								if(longestInverted[j-invBeginA] == 1){
 									if(inverted[invCount].state == INV){
 										chromo[j].state = INV;
 									}
@@ -245,13 +294,30 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 							free(inverted);
 							inverted = NULL;
 
-}}}}}}
+
+}
+}}}}}
 	//printf("****Finished Writing Inversions****\n");
 	inverted = NULL;
 }
 
 SYNPATH invSYN(char chr[], int length){
+
+
+//	printf("length: %d\n", length);
+
+//	printf("bend: %d\tstart: %d/n", inverted[0].bend, inverted[length-1].bstart);
+
+//	printf("CHECK_1\n");
+
+
+
+
 	int sum = inverted[0].bend + inverted[length-1].bstart;
+//	printf("CHECK_2\n");
+
+
+
 	length = length+2;
 
 	BLOCK *invChrom = (BLOCK *) calloc(length, sizeof(BLOCK));
@@ -290,6 +356,7 @@ SYNPATH invSYN(char chr[], int length){
 
 	free(invChrom);
 	invChrom = NULL;
+//	printf("CHECK_3\n");
 
 	return(synPath);
 
