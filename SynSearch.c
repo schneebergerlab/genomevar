@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include "SynSearch.h"
 /*
@@ -28,6 +27,7 @@
 
 
 int main(int argc, char *argv[]) {
+	printf("LOL\n");
 
 	init(argc, argv);
     printf("init\n");
@@ -44,11 +44,6 @@ int main(int argc, char *argv[]) {
    // printf("lol\n");
 //printf("%d\n", CHROMOSOME_NUM);
 
-    parseCTX();
-    printf("%s %d ***\n", blocks[58].achr, blocks[58].astart);
-
-   // printf("lol\n");
-//printf("%d\n", CHROMOSOME_NUM);
 
     for (int chr = 0; chr < CHROMOSOME_NUM; chr++) {
 
@@ -85,21 +80,8 @@ int main(int argc, char *argv[]) {
     			chromo_index++;
     		}
     	}
-<<<<<<< HEAD
-=======
-
 
    		SYNPATH synPath = parseSYN(chromo, CHROMOSOME[chr], num);
->>>>>>> 1a59e27690270facac1b167a3c74d0ce402051de
-
-   	 //   printf("%s %d 3\n", chromo[59].achr, chromo[59].astart);
-
-<<<<<<< HEAD
-
-   		SYNPATH synPath = parseSYN(chromo, CHROMOSOME[chr], num);
-=======
-
-
 
    		parseITX(chromo, CHROMOSOME[chr], num);
 
@@ -108,9 +90,6 @@ int main(int argc, char *argv[]) {
 
 
    		groupITX(chromo, CHROMOSOME[chr], num);
-   		int a =15;
-   		assert(a >= 10);
->>>>>>> 1a59e27690270facac1b167a3c74d0ce402051de
 
    	//    printf("%s %d 4\n", chromo[59].achr, chromo[59].astart);
 
@@ -125,8 +104,6 @@ int main(int argc, char *argv[]) {
    		parseINV(chromo, CHROMOSOME[chr], num);
 
    		groupITX(chromo, CHROMOSOME[chr], num);
-   		int a =15;
-   		assert(a >= 10);
 
    		free(chromo);
     	chromo = NULL;

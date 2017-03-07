@@ -195,11 +195,8 @@ void printSynPath(BLOCK *chromo, SYNPATH synPath) {
 
 	if (in == 1) {
 		int e = maxWeightPathLength-1;
-<<<<<<< HEAD
 		fprintf(synOutFile, "#SYN ");
-=======
 		fprintf(synOutFile, "#SYN");
->>>>>>> 1a59e27690270facac1b167a3c74d0ce402051de
 		fprintf(synOutFile, "%s %d %d - ", chromo[maxWeightPath[s]].achr, chromo[maxWeightPath[s]].astart, chromo[maxWeightPath[e]].aend);
 		fprintf(synOutFile, "%s %d %d\n", chromo[maxWeightPath[s]].bchr, chromo[maxWeightPath[s]].bstart, chromo[maxWeightPath[e]].bend);
 		for (int j = s; j < maxWeightPathLength; j++) {

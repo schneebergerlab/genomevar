@@ -42,8 +42,8 @@ void init(int argc, char *argv[]) {
     displayHelp(1);
   }
 
-  strcpy(inputFileName1, argv[argc-2]);
-  strcpy(inputFileNamem, argv[argc-1]);
+  strcpy(inputFileName, argv[argc-2]);
+  strcpy(minputFileName, argv[argc-1]);
 
   // open output files:
 	char outfilename[] = "SynSearch.syn.txt";
