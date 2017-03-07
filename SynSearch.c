@@ -36,10 +36,14 @@ int main(int argc, char *argv[]) {
  //   readInputFile();
     printf("read file\n");
 
+
     // First: parse out cross chromosomal translocations
 
     printf("parse ctx\n");
+
     parseCTX();
+    printf("%s %d ***\n", blocks[58].achr, blocks[58].astart);
+
    // printf("lol\n");
 //printf("%d\n", CHROMOSOME_NUM);
 
@@ -67,63 +71,49 @@ int main(int argc, char *argv[]) {
     	chromo[0].state =  STER;
     	chromo[num-1].state = ETER;
 
+    //    printf("%s %d 2\n", blocks[58].achr, blocks[58].astart);
 
    		for(int i=0; i < BLOCK_NUM; i++){
     		if(strcmp(blocks[i].achr, CHROMOSOME[chr])== 0){
     			chromo[chromo_index] = blocks[i];
+    			strcpy(chromo[chromo_index].achr, blocks[i].achr);
+    			strcpy(chromo[chromo_index].bchr, blocks[i].bchr);
+
     			chromo_index++;
     		}
     	}
 
+   	 //   printf("%s %d 3\n", chromo[59].achr, chromo[59].astart);
+
 
    		SYNPATH synPath = parseSYN(chromo, CHROMOSOME[chr], num);
 
+   	//    printf("%s %d 4\n", chromo[59].achr, chromo[59].astart);
+
+
    		printSynPath(chromo, synPath);
 
-
+   	   // printf("%s %d 5\n", chromo[59].achr, chromo[59].astart);
 
 
    		parseITX(chromo, CHROMOSOME[chr], num);
 
-
    		parseINV(chromo, CHROMOSOME[chr], num);
-
 
    		groupITX(chromo, CHROMOSOME[chr], num);
    		int a =15;
    		assert(a >= 10);
 
-
-/*
-   		//printf("setting B edges\n");
-   		setEdgesBGenome(CHROMOSOME[chr], num);
-
-   		// build all possible paths
-		setEdges(CHROMOSOME[chr], num);
-
-		// calculate cummulative weigths for each path
-		// while only the heaviest path is followed
-		setPathWeights(CHROMOSOME[chr], num);
-
-		backtraceSynPath(CHROMOSOME[chr], num);
-
-		printSynPath(CHROMOSOME[chr], num);
-		maxWeight = 0;
-
-		parseITX(CHROMOSOME[chr], num);
-
- 		writeInversions(CHROMOSOME[chr], num);
-
-*/
-    	free(chromo);
+   		free(chromo);
     	chromo = NULL;
     	//free(maxWeightPath);
     	//free(longestInverted);
     	free(synPath.maxWeightPath);
     }
 
+    printf("\n\n FINISHED SUCCESSFULLY");
 
-       printf("\n\n FINISHED SUCCESSFULLY");
+    fclose(itxOutFile);
 	return EXIT_SUCCESS;
 }
 

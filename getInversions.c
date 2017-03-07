@@ -19,7 +19,7 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 
 		int forward[num], backward[num];
 
-//		int startSyn, endSyn;
+	//	int startSyn, endSyn;
 
 		for (int j =1; j<num-1;j++){
 			forward[j] =0;
@@ -31,18 +31,15 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 				 *
 				 * Set right B neighbor */
 
-				printf("NEW BLOCK: %d\n", i);
-
 				int rightB = chromo[i].rightBNeighbor;
 				if(chromo[rightB].dir == -1) forward[rightB] = 1;
-
-				printf("rightB: %d\n", rightB);
 
 				while (chromo[rightB].state != SYN && chromo[rightB].state != ETER){
 					rightB = chromo[rightB].rightBNeighbor;
 					if(chromo[rightB].dir == -1) forward[rightB] = 1;
-					printf("rightB: %d\n", rightB);
 				}
+
+			//	endSyn = rightB;
 
 				// Set left A neighbor
 				int leftA = i - 1;
@@ -50,7 +47,9 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 					leftA--;
 				}
 
-				if (!(chromo[leftA].state == STER && chromo[rightB].state == ETER)) { //Special case: whole chr inverted, means no inversion as then the alignment dir wrong
+				if (!(chromo[leftA].state == STER && chromo[rightB].state == ETER)) {
+
+					//Special case: whole chr inverted, means no inversion as then the alignment dir wrong
 					/*if (rightB == -1 || leftA == -1) {
 						printf("WARNING: Inv at the end of chr: not solved. Will be reported as ITX.\n");
 						if (rightB == -1){
@@ -146,28 +145,31 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 						/** if (rightB == -1) { // inv at the end of the chromosome
 								invEndA = BLOCK_NUM-1;
 							}*/
-
 						while (chromo[invEndA].dir == 1 || chromo[invEndA].state == CTX ||
 								chromo[invEndA].state == SYN || chromo[invEndA].state == ETER ||
-								forward[invEndA] == 1 || chromo[invEndA].bstart > chromo[rightB].bstart || chromo[invEndA].bstart < chromo[leftA].bstart) {
+								forward[invEndA] == 1 || (chromo[invEndA].bstart > chromo[rightB].bstart && chromo[rightB].state != ETER) ||
+								chromo[invEndA].bstart < chromo[leftA].bstart) {
 							invEndA--;
 						}
+
+
 
 						//Run left until next syntenic block
 						int leftB = chromo[invEndA].leftBNeighbor;
 						if(chromo[leftB].dir == -1) backward[leftB] = 1;
-
 						/** MISSING SOLUTION END OF CHR */
 						while (chromo[leftB].state != STER && chromo[leftB].state != SYN) {
+
 							leftB = chromo[leftB].leftBNeighbor;
 							if(chromo[leftB].dir == -1) backward[leftB] = 1;
+
 						}
 
 						int invBeginA = leftB;
-
 						while (chromo[invBeginA].dir != -1 || chromo[invBeginA].state == CTX ||
 								chromo[invBeginA].state == SYN || chromo[invBeginA].state == STER ||
-								backward[invBeginA] == 1 ||  chromo[invBeginA].bstart > chromo[rightB].bstart || chromo[invBeginA].bstart < chromo[leftA].bstart) {
+								backward[invBeginA] == 1 ||  (chromo[invBeginA].bstart > chromo[rightB].bstart && chromo[rightB].state != ETER) ||
+								chromo[invBeginA].bstart < chromo[leftA].bstart) {
 							invBeginA++;
 							if(invBeginA > num-1){
 								break;
@@ -183,9 +185,11 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 							printf("chromo.state: %d\n", chromo[j].state);
 						}*/
 
+
+
 						if (invBeginA == i) {
 
-						//	printf("START\n");
+						//printf("START\n");
 
 														//printf("Chr: %s \t i: %d\t invBegin: %d\t invEnd: %d\t begin.start: %d \t end.start: %d \t begin.dir: %d \t end.dir: %d\n",
 												//				chr,i, invBeginA, invEndA, chromo[invBeginA].bstart, chromo[invEndA].bstart, chromo[invBeginA].dir, chromo[invEndA].dir);
@@ -235,9 +239,9 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 													chromo[invBeginA].astart, chromo[invBeginA].aend, chromo[invEndA].astart, chromo[invEndA].aend,
 													chromo[invBeginA].bstart, chromo[invBeginA].bend, chromo[invEndA].bstart, chromo[invEndA].bend);	*/
 
-											if(chromo[j].bstart > chromo[invBeginA].bstart  ||  chromo[j].bstart < chromo[invEndA].bstart){
-										//		printf("*****************found ITX_IN *****************************\n");
-
+											if((chromo[j].bstart > chromo[rightB].bstart || chromo[j].bstart < chromo[leftB].bstart) && chromo[rightB].state != ETER){
+//										//		printf("*****************found ITX_IN *****************************\n");
+//
 												chromo[j].state = INV_ITX;
 											}
 											else{
@@ -253,7 +257,7 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 
 
 
-				//			printf("inCount: %d\n",invCount);
+						//	printf("inCount: %d\n",invCount);
 							inverted = (BLOCK *)calloc(invCount, sizeof(BLOCK));
 							invCount=0;
 
@@ -338,8 +342,8 @@ SYNPATH invSYN(char chr[], int length){
 		invChrom[j].bstart = invChrom[j].bstart - invChrom[j].bend;
 	}
 
-/*
 
+/*
 	printf("*****\n");
 	for (int j=0; j<length;j++){
 		printf("%d\t", invChrom[j].astart);
@@ -351,6 +355,7 @@ SYNPATH invSYN(char chr[], int length){
 		printf("%s\n", invChrom[j].bchr);
 	}
 */
+
 
 	SYNPATH synPath = parseSYN(invChrom,chr,length);
 

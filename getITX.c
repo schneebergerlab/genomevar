@@ -66,7 +66,7 @@ void groupITX(BLOCK *chromo, char chr[], int num){
 			}
 		}
 		else {
-			// Write if a CTX was just passed
+			// Write if a ITX was just passed
 			if (in != -1) {
 				writeITX(chromo, in, i-1);
 			}
@@ -75,7 +75,7 @@ void groupITX(BLOCK *chromo, char chr[], int num){
 	}
 
 	if (in != -1) {
-		writeITX(chromo,in, i-2);
+		writeITX(chromo,in, i-1);
 	}
 }
 
@@ -86,8 +86,9 @@ void writeITX(BLOCK *chromo, int a, int b) {
 	switch(chromo[a].state){
 	case 5://ITX
 		fprintf(itxOutFile,"#ITX\t");
+		//printf("chr : %s \t chr: %d\n", chromo[a].achr, chromo[a].achr);
 		fprintf(itxOutFile, "%s %d %d - ", chromo[a].achr, chromo[a].astart, chromo[b].aend);
-		fprintf(itxOutFile, "%s %d %d\n", chromo[a].bchr, chromo[a].bstart, chromo[b].bend);
+		fprintf(itxOutFile, "%s %d %d\n", chromo[a].bchr, chromo[b].bstart, chromo[b].bend);
 		break;
 
 	case 6: //Inverted ITX

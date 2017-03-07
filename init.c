@@ -21,6 +21,9 @@ const int INV = 4;
 const int ITX = 5;
 const int INV_ITX = 6;
 const int ITX_IN_INV =7;
+const int DUP = 8;
+
+const int TEMP_DUP = 100;
 const int STER = 101;
 const int ETER = 102;
 
@@ -39,7 +42,8 @@ void init(int argc, char *argv[]) {
     displayHelp(1);
   }
 
-  strcpy(inputFileName, argv[argc-1]);
+  strcpy(inputFileName1, argv[argc-2]);
+  strcpy(inputFileNamem, argv[argc-1]);
 
   // open output files:
 	char outfilename[] = "SynSearch.syn.txt";
@@ -66,7 +70,15 @@ void init(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	char outfilename5[] = "SynSearch.dup.txt";
+	if ((dupOutFile = fopen(outfilename5, "w")) == NULL) {
+		printf("Cannot open output file\n");
+		exit(1);
+	}
+
 	readInputFile();
+
+	filterBlocks();
 
 }
 
@@ -87,9 +99,9 @@ void displayVersion() {
 	printf("SynSearch, version 0.03, 31.01,2017\n");
 }
 
-void readInputFile() {
+void readInputFile(char *fileName, BLOCK * blocks) {
 
-  if ((inputFile = fopen(inputFileName, "r")) == NULL) {
+  if ((inputFile = fopen(fileName, "r")) == NULL) {
 	  printf("Cannot open input file\n");
     exit(1);
   }
@@ -134,6 +146,8 @@ void readInputFile() {
 
 	  blocks[c].alen = blocks[c].aend - blocks[c].astart + 1;
 
+	  blocks[c].iden = f7;
+
 	  if (adir == bdir) {
 		  blocks[c].dir = 1;
 	  } else {
@@ -144,6 +158,7 @@ void readInputFile() {
 	  strcpy(blocks[c].achr, c10);
 	  strcpy(blocks[c].bchr, c11);
 
+	  if(i1 == 3301488) printf("c10: %s \t blocks.achr:%s \t index: %d\n", c10, blocks[c].achr, c);
 	  // increment block counter
 	  c++;
 
@@ -240,5 +255,151 @@ void setEdgesBGenome(BLOCK *chromo, char chr[], int num) {
 		chromo[num-1].leftBNeighbor = last;
 		chromo[num-1].rightBNeighbor = -1;
 		chromo[last].rightBNeighbor = num-1;
+	}
+}
+
+void filterBlocks(){
+
+// Duplicates in Genome A
+	for(int i=0; i<BLOCK_NUM; i++){
+		int check =0;
+		for(int j=i+1; j< BLOCK_NUM && check==0; j++){
+			if(strcmp(blocks[i].achr, blocks[j].achr)==0){
+				if(blocks[i].astart > blocks[j].astart){
+					printf("Error in input file. Positions in the first genome need to be sorted and larger \n"
+							"i.astart: %d \t j.astart: %d \n", blocks[i].astart, blocks[j].astart);
+					exit(1);
+				}
+				if(blocks[i].astart == blocks[j].astart){
+					if(blocks[i].aend > blocks[j].aend){
+						blocks[j].state = DUP;
+					}
+					else{
+						if(blocks[i].aend < blocks[j].aend){
+						blocks[i].state = DUP;
+						check = 1;
+						}
+						else{
+							if(blocks[i].iden > blocks[j].iden){
+								blocks[j].state = DUP;
+							}
+							else{
+								blocks[i].state = DUP;
+								check = 1;
+							}
+						}
+					}
+				}
+				else{
+					if(blocks[i].aend > blocks[j].astart){
+						if(blocks[i].aend >= blocks[j].aend){
+							blocks[j].state = DUP;
+						}
+						else{
+							if(abs(blocks[i].astart - blocks[j].astart) < 50 && abs(blocks[i].aend - blocks[j].aend) < 50){
+								if(blocks[i].state != DUP) blocks[i].state = TEMP_DUP;
+								if(blocks[j].state != DUP) blocks[j].state = TEMP_DUP;
+							}
+							else{
+								if(abs(blocks[i].astart - blocks[j].astart) > 50 && abs(blocks[i].aend - blocks[j].aend) < 50){
+									blocks[j].state = DUP;
+								}
+								else{
+									if(abs(blocks[i].astart - blocks[j].astart) < 50 && abs(blocks[i].aend - blocks[j].aend) > 50){
+										blocks[i].state = DUP;
+										check = 1;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+//	Duplicates in Genome B
+	for(int i=0; i< BLOCK_NUM; i++){
+		if(blocks[i].state == DUP) continue;
+
+		int check = 0;
+
+		for(int j = i+1;j<BLOCK_NUM && check == 0; j++){
+
+			if(blocks[j].state == DUP) continue;
+
+			if(strcmp(blocks[i].bchr, blocks[j].bchr) == 0){
+				if(blocks[i].bstart > blocks[j].bstart){
+					if(blocks[i].bstart >= blocks[j].bend) continue;
+					if (blocks[i].bend <= blocks[j].bend){
+						blocks[i].state = DUP;
+						check = 1;
+					}
+					else{
+						if(abs(blocks[i].bstart - blocks[j].bstart) < 50 && abs(blocks[i].bend - blocks[j].bend) < 50){
+							if(blocks[i].state != DUP) blocks[i].state = TEMP_DUP;
+							if(blocks[j].state != DUP) blocks[j].state = TEMP_DUP;
+						}
+						else{
+							if(abs(blocks[i].bstart - blocks[j].astart) > 50 && abs(blocks[i].aend - blocks[j].aend) < 50){
+								blocks[i].state = DUP;
+								check = 1;
+							}
+							else{
+								if(abs(blocks[i].astart - blocks[j].astart) < 50 && abs(blocks[i].aend - blocks[j].aend) > 50){
+									blocks[j].state = DUP;
+								}
+							}
+						}
+					}
+				}
+				else{
+					if(blocks[i].bstart == blocks[j].bstart){
+						if(blocks[i].bend > blocks[j].bend){
+							blocks[j].state = DUP;
+						}
+						else{
+							if(blocks[i].bend < blocks[j].bend){
+								blocks[i].state = DUP;
+								check = 1;
+							}
+							else{
+								if(blocks[i].iden > blocks[j].iden){
+									blocks[j].state = DUP;
+								}
+								else{
+									blocks[i].state = DUP;
+									check = 1;
+								}
+							}
+						}
+					}
+					else{
+						if(blocks[i].bend > blocks[j].bstart){
+							if(blocks[i].bend >= blocks[j].bend){
+								blocks[j].state = DUP;
+							}
+							else{
+								if(abs(blocks[i].bstart - blocks[j].bstart) < 50 && abs(blocks[i].bend - blocks[j].bend) < 50){
+									if(blocks[i].state != DUP) blocks[i].state = TEMP_DUP;
+									if(blocks[j].state != DUP) blocks[j].state = TEMP_DUP;
+								}
+								else{
+									if(abs(blocks[i].bstart - blocks[j].bstart) > 50 && abs(blocks[i].bend - blocks[j].bend) < 50){
+										blocks[j].state = DUP;
+									}
+									else{
+										if(abs(blocks[i].bstart - blocks[j].bstart) < 50 && abs(blocks[i].bend - blocks[j].bend) > 50){
+											blocks[i].state = DUP;
+											check = 1;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }

@@ -22,10 +22,19 @@ SYNPATH parseSYN(BLOCK *chromo, char chr[], int num){
 	maxWeightPath = (int *) calloc(num, sizeof(int));
 	//test for commit
 
+ //   printf("%s %d 10\n", chromo[59].achr, chromo[59].astart);
+
+
 	setEdgesBGenome(chromo, chr, num);
+  //  printf("%s %d 11\n", chromo[59].achr, chromo[59].astart);
+
+
 
 	// build all possible paths
 	setEdges(chromo, chr, num);
+ //   printf("%s %d 12\n", chromo[59].achr, chromo[59].astart);
+
+
 
 	// calculate cummulative weigths for each path
 	// while only the heaviest path is followed
@@ -50,31 +59,63 @@ SYNPATH parseSYN(BLOCK *chromo, char chr[], int num){
 }
 
 void setEdges(BLOCK *chromo, char chr[], int num) {
+  //  printf("%s %d 14\n", chromo[59].achr, chromo[59].astart);
+
 	for (int i = num -1 ; i > 0; i--) {
+
+
+
 		if (strcmp(chromo[i].achr, chr) == 0 && chromo[i].dir == 1 && chromo[i].state != CTX){ // only one chromosome at a time
 			maxWeightBlock = i;
 			maxWeight = chromo[i].weight;
 			int setEdge = 0;
 			int j = i+1;
 			chromo[i].flagBadOut = 1;
+
 			while (setEdge == 0 && j < num-1) { // block j needs to existpr
+
+
 				if (strcmp(chromo[j].achr, chr) == 0 && chromo[j].dir == 1) {
+
 					if (testSynteny(i, j, chromo)) {
+				//		if(i==58  && (j==1203 || j==1204)){printf("%s %d i:%d j:%d -A\n", chromo[59].achr, chromo[59].astart, i,j);}
+
 						chromo[i].outEdge[chromo[i].outEdgeNum] = j;
+
+				//		if(i==58  && (j==1203 || j==1204)){printf("%s %d i:%d j:%d A\n", chromo[59].achr, chromo[59].astart, i,j);}
+
+
 						chromo[i].outEdgeNum++;
+
 						chromo[j].inEdge[chromo[j].inEdgeNum] = i;
 						chromo[j].inEdgeNum++;
+
 						// set badOut to 0 if it is the next block that is linked
-						if (i+1 == j) {
+
+	//	if(i == 58 && (j==1203 || j==1204)){		    printf("%s %d i:%d j:%d C\n", chromo[59].achr, chromo[59].astart, i, j);}
+
+						if (i+1 == j && chromo[i].rightBNeighbor == j) {
+
 							chromo[i].flagBadOut = 0;
+							setEdge = 1;
 						}
+			//			if(i == 58 && (j==1203 || j==1204)){		    printf("%s %d i:%d j:%d C\n", chromo[59].achr, chromo[59].astart, i, j);}
+
 						// Only if the linked block is not badOut stop
 						// This is relevant if multiple translocations follow each other: multiple outEdges will be set for the block
-						if (chromo[j].flagBadOut == 0) {
+					/*	if (chromo[i].flagBadOut == 0) {				//Confirm With Korbinian
+							printf(" **** i : %d\t j: %d\n",i,j);
 							setEdge = 1;
-						}}}
+						}*/
+					}}
 				j++;
-}}}}
+}
+		//    printf("%s %d i:%d B\n", chromo[59].achr, chromo[59].astart, i);
+
+		}}
+ //   printf("%s %d 15\n", chromo[59].achr, chromo[59].astart);
+
+}
 
 int testSynteny(int i, int j, BLOCK *chromo) {
 	if (chromo[i].astart < chromo[j].astart && chromo[i].bstart < chromo[j].bstart && strcmp(chromo[i].achr, chromo[j].bchr)==0) {
@@ -88,6 +129,7 @@ void setPathWeights( BLOCK *chromo, char chr[], int num) {
 	for (int i = 1; i < num-1; i++) {
 		if (strcmp(chromo[i].achr, chr) == 0 && chromo[i].dir == 1 && chromo[i].state != CTX){ // only one chromosome at a time and only fwd chromo
 			chromo[i].weight = chromo[i].alen;
+
 			for (int j = 0; j < chromo[i].inEdgeNum; j++) {
 
 				if (chromo[i].weight < chromo[chromo[i].inEdge[j]].weight + chromo[i].alen) {
@@ -96,6 +138,7 @@ void setPathWeights( BLOCK *chromo, char chr[], int num) {
 					if (chromo[i].weight > maxWeight) {
 						maxWeightBlock = i;
 						maxWeight = chromo[i].weight;
+
 }}}}}}
 
 void backtraceSynPath( BLOCK *chromo, char chr[], int num){
@@ -152,7 +195,7 @@ void printSynPath(BLOCK *chromo, SYNPATH synPath) {
 
 	if (in == 1) {
 		int e = maxWeightPathLength-1;
-		fprintf(synOutFile, "#SYN");
+		fprintf(synOutFile, "#SYN ");
 		fprintf(synOutFile, "%s %d %d - ", chromo[maxWeightPath[s]].achr, chromo[maxWeightPath[s]].astart, chromo[maxWeightPath[e]].aend);
 		fprintf(synOutFile, "%s %d %d\n", chromo[maxWeightPath[s]].bchr, chromo[maxWeightPath[s]].bstart, chromo[maxWeightPath[e]].bend);
 		for (int j = s; j < maxWeightPathLength; j++) {
