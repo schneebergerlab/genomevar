@@ -64,9 +64,6 @@ void parseCTX() {
 	if (in != -1) {
 		writeCTX(in, i-2);
 	}
-
-	printf("FINISHED CTX\n");
-
 }
 
 void writeCTX(int a, int b) {

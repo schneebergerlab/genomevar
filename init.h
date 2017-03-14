@@ -8,14 +8,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
 
 #ifndef INIT_H_
 #define INIT_H_
 
 #define MAX_EDGE_NUM 10000
 #define MAX_BLOCK_NUM 100000
-
-//using namespace std;
 
 typedef struct block {
 	int indexA;
@@ -24,12 +23,12 @@ typedef struct block {
 	int leftBNeighbor; //order on B genome
 	int rightBNeighbor;
 
-	char achr[4096];
+	char achr[256];
 	int astart;
 	int aend;
 	int alen;
 
-	char bchr[4096];
+	char bchr[256];
 	int bstart;
 	int bend;
 	int blen;
@@ -54,8 +53,9 @@ typedef struct block {
 	int weight;
 } BLOCK;
 
-BLOCK blocks[MAX_BLOCK_NUM];
-BLOCK mBlocks[MAX_BLOCK_NUM];
+//extern BLOCK blocks[MAX_BLOCK_NUM];
+extern std::vector<BLOCK> blocks;
+extern std::vector<BLOCK> mBlocks;
 
 typedef struct synPath{
 	int *maxWeightPath;
@@ -68,25 +68,25 @@ extern int mBLOCK_NUM;
 extern int CHROMOSOME_NUM;
 extern int mCHROMOSOME_NUM;
 
-char CHROMOSOME[4096][4096];
-char mCHROMOSOME[4096][4096];
+extern char CHROMOSOME[4096][4096];
+extern char mCHROMOSOME[4096][4096];
 
-char inputFileName[249];
-char minputFileName[249];
-FILE *inputFile;
-FILE *synOutFile;
-FILE *ctxOutFile;
-FILE *invOutFile;
-FILE *itxOutFile;
-FILE *dupOutFile;
+extern char inputFileName[249];
+extern char minputFileName[249];
+extern FILE *inputFile;
+extern FILE *synOutFile;
+extern FILE *ctxOutFile;
+extern FILE *invOutFile;
+extern FILE *itxOutFile;
+extern FILE *dupOutFile;
 
 
 //General Helpers
 //void setEdgesBGenome(char chr[]);
-void setEdgesBGenome(BLOCK *chromo, char chr[], int num);
+void setEdgesBGenome(std::vector<BLOCK> &chromo, char chr[], int num);
 void writeBlock(FILE *file, BLOCK block);
 void init(int argc, char *argv[]);
-void readInputFile();
+void readInputFile(char *fileName, std::vector<BLOCK> &blocks);
 void displayHelp(int exitCode);
 void displayVersion();
 void filterBlocks();

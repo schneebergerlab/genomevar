@@ -10,17 +10,18 @@
 //#include "SynSearch1.h"
 
 int *longestInverted;
-BLOCK *inverted;
+std::vector<BLOCK> inverted;
 
-void parseINV(BLOCK *chromo, char chr[], int num) {
-//	printf("INSIDE\n");
+void parseINV(std::vector<BLOCK> &chromo, char chr[], int num) {
+
+	printf("num:%d\n",num);
+
+	//	printf("INSIDE\n");
 
 	for (int i = 1; i < num-1; i++) {
 
-		int forward[num], backward[num];
 
-	//	int startSyn, endSyn;
-//		int startSyn, endSyn;
+		int forward[num], backward[num];
 
 		for (int j =1; j<num-1;j++){
 			forward[j] =0;
@@ -32,31 +33,26 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 				 *
 				 * Set right B neighbor */
 
-				printf("NEW BLOCK: %d\n", i);
-
 				int rightB = chromo[i].rightBNeighbor;
 				if(chromo[rightB].dir == -1) forward[rightB] = 1;
 
-				while (chromo[rightB].state != SYN && chromo[rightB].state != ETER){
-					rightB = chromo[rightB].rightBNeighbor;
-					if(chromo[rightB].dir == -1) forward[rightB] = 1;
-				printf("rightB: %d\n", rightB);
 
 				while (chromo[rightB].state != SYN && chromo[rightB].state != ETER){
 					rightB = chromo[rightB].rightBNeighbor;
 					if(chromo[rightB].dir == -1) forward[rightB] = 1;
-					printf("rightB: %d\n", rightB);
 				}
 
-			//	endSyn = rightB;
 
-				// Set left A neighbor
+
 				int leftA = i - 1;
 				while (chromo[leftA].state != STER && chromo[leftA].state != SYN) {
 					leftA--;
 				}
 
+
+
 				if (!(chromo[leftA].state == STER && chromo[rightB].state == ETER)) {
+
 
 					//Special case: whole chr inverted, means no inversion as then the alignment dir wrong
 					/*if (rightB == -1 || leftA == -1) {
@@ -149,22 +145,17 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 
 					if (rightB > i) { // otherwise running back is senseless and no inversion is found
 						//Run back on A genome until an inversion is found
+
+
+
 						int invEndA = rightB;
 
-						/** if (rightB == -1) { // inv at the end of the chromosome
-								invEndA = BLOCK_NUM-1;
-							}*/
 						while (chromo[invEndA].dir == 1 || chromo[invEndA].state == CTX ||
 								chromo[invEndA].state == SYN || chromo[invEndA].state == ETER ||
 								forward[invEndA] == 1 || (chromo[invEndA].bstart > chromo[rightB].bstart && chromo[rightB].state != ETER) ||
 								chromo[invEndA].bstart < chromo[leftA].bstart) {
-
-						while (chromo[invEndA].dir == 1 || chromo[invEndA].state == CTX ||
-								chromo[invEndA].state == SYN || chromo[invEndA].state == ETER ||
-								forward[invEndA] == 1 || chromo[invEndA].bstart > chromo[rightB].bstart || chromo[invEndA].bstart < chromo[leftA].bstart) {
 							invEndA--;
 						}
-
 
 
 						//Run left until next syntenic block
@@ -203,8 +194,8 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 
 						if (invBeginA == i) {
 
-						//printf("START\n");
-						//	printf("START\n");
+							/*	//printf("START\n");
+
 
 														//printf("Chr: %s \t i: %d\t invBegin: %d\t invEnd: %d\t begin.start: %d \t end.start: %d \t begin.dir: %d \t end.dir: %d\n",
 												//				chr,i, invBeginA, invEndA, chromo[invBeginA].bstart, chromo[invEndA].bstart, chromo[invBeginA].dir, chromo[invEndA].dir);
@@ -216,7 +207,7 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 
 							//printf("Chr: %s \t A.start: %d \n",chr, chromo[i].astart);
 
-		/*					printf("\n%d\t", chromo[i].astart);
+							printf("\n%d\t", chromo[i].astart);
 							printf("%d\t", chromo[i].aend);
 							printf("%d\t", chromo[i].bstart);
 							printf("%d\t", chromo[i].bend);
@@ -227,39 +218,64 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 									printf("invBegin: %d \t invEnd: %d\n",invBeginA, invEndA);
 
 
-							*/fprintf(invOutFile, "#INV ");
+							 */
+
+							fprintf(invOutFile, "#INV ");
 							fprintf(invOutFile, "%s %d %d - ", chromo[invBeginA].achr, chromo[invBeginA].astart, chromo[invEndA].aend);
 							fprintf(invOutFile, "%s %d %d\n", chromo[invEndA].bchr, chromo[invEndA].bstart, chromo[invBeginA].bend);
 
-							longestInverted = (int *)calloc((invEndA - invBeginA +1), sizeof(int));
-							int invCount=0;
+							std::vector<int> longestInverted(invEndA - invBeginA +1);
+							int invCount = 0 ;
+
+
+				//			printf("invCount: %d\n",invCount);
+
+				//			printf("invBeginA: %d \t invEndA: %d \n",invBeginA, invEndA);
+
+					//		printf("rightb: %d \t leftA : %d \t invBeginA: %d \t invEndA: %d\n", rightB,leftA, invBeginA, invEndA);
+
+
+
 
 							for (int j = invBeginA; j <= invEndA; j++) {
 
 								longestInverted[j - invBeginA] = 0;
+
+
 								if (chromo[j].state == SYN) {
+
+
 									chromo[j].state = SYN_IN_INV;
-						//			printf("found SYN \n");
-								}
-								else {
+								//	printf("found SYN \n");
+								}else {
+
+
+
 									if (chromo[j].state == CTX || chromo[j].state == ITX){
-						//				printf("found ITX \n");
+										//printf("found ITX \n");
 										continue;
-									}else {
+									}
+									else {
+
+
 										if (chromo[j].dir == -1) {
-						/*					printf("j.start: %d \t j.end: %d \n"
+
+
+/*
+
+																printf("j.start: %d \t j.end: %d \n"
 													"begin.astart : %d begin.aend: %d \t end.astart: %d \t end.aend: %d\n"
 													"begin.bstart : %d begin.bend: %d \t end.bstart: %d \t end.bend: %d\n",
 													chromo[j].bstart,chromo[j].bend,
 													chromo[invBeginA].astart, chromo[invBeginA].aend, chromo[invEndA].astart, chromo[invEndA].aend,
-													chromo[invBeginA].bstart, chromo[invBeginA].bend, chromo[invEndA].bstart, chromo[invEndA].bend);	*/
+													chromo[invBeginA].bstart, chromo[invBeginA].bend, chromo[invEndA].bstart, chromo[invEndA].bend);*/
 
-											if((chromo[j].bstart > chromo[rightB].bstart || chromo[j].bstart < chromo[leftB].bstart) && chromo[rightB].state != ETER){
-//										//		printf("*****************found ITX_IN *****************************\n");
-//
-											if(chromo[j].bstart > chromo[invBeginA].bstart  ||  chromo[j].bstart < chromo[invEndA].bstart){
-										//		printf("*****************found ITX_IN *****************************\n");
+									if((chromo[j].bstart > chromo[rightB].bstart || chromo[j].bstart < chromo[leftB].bstart) && chromo[rightB].state != ETER){
+											//printf("*****************found ITX_IN *****************************\n");
 
+
+											//if(chromo[j].bstart > chromo[invBeginA].bstart  ||  chromo[j].bstart < chromo[invEndA].bstart){
+									//			printf("*****************found INV_ITX *****************************\n");
 												chromo[j].state = INV_ITX;
 											}
 											else{
@@ -271,31 +287,46 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 										}
 									}
 								}
+
 							}
 
 
 
-						//	printf("inCount: %d\n",invCount);
-				//			printf("inCount: %d\n",invCount);
-							inverted = (BLOCK *)calloc(invCount, sizeof(BLOCK));
+					//		std::cout<<"LOL\n";
+
+
+
+						//	printf("invCount: %d\n",invCount);
+
+							//inverted = (BLOCK *)calloc(invCount, sizeof(BLOCK));
 							invCount=0;
 
 							for (int j = invBeginA; j <= invEndA; j++){
 								if(longestInverted[j-invBeginA] == 1){
-									inverted[invCount] = chromo[j];
+									inverted.push_back(chromo[j]);
 									invCount++;
 								}
 							}
+						//	std::cout<<"size: "<<inverted.size()<<"   invCount: "<<invCount<<"\n";
 
+					//		std::cout<<chr<<"\t"<<invCount<<"\n";
 
+					//		std::cout<<"inverted.size: "<<inverted.size()<<"\n";
 
-							SYNPATH synPath = invSYN(chr, invCount);
+							SYNPATH synPath;
+
+							synPath = invSYN(chr, invCount);
 
 
 							for(int j =0; j< synPath.maxWeightPathLength; j++){
 								inverted[synPath.maxWeightPath[j-1]].state = INV;
 								writeBlock(invOutFile, inverted[synPath.maxWeightPath[j-1]]);
 							}
+
+
+							/*for (int j=0; j <inverted.size();++j){
+								std::cout<<"state: "<<synPath.invOutFile.state<<"\n";
+							}*/
 
 
 							invCount =0;
@@ -312,45 +343,46 @@ void parseINV(BLOCK *chromo, char chr[], int num) {
 							}
 
 							i = invEndA;
-							free(longestInverted);
-							longestInverted =NULL;
-							free(inverted);
-							inverted = NULL;
+							inverted.clear();
+							free(synPath.maxWeightPath);
+							//	free(longestInverted);
+							//longestInverted =NULL;
+							//	free(inverted);
+							//inverted = NULL;
 
 
+						}
+					}
+				}
+			}
+		}
+
+
+	}
 }
-}}}}}
-	//printf("****Finished Writing Inversions****\n");
-	inverted = NULL;
-}}}}
+
+
 
 SYNPATH invSYN(char chr[], int length){
-
-
-//	printf("length: %d\n", length);
-
-//	printf("bend: %d\tstart: %d/n", inverted[0].bend, inverted[length-1].bstart);
-
-//	printf("CHECK_1\n");
-
-
-
-
 	int sum = inverted[0].bend + inverted[length-1].bstart;
-//	printf("CHECK_2\n");
-
-
-
 	length = length+2;
 
-	BLOCK *invChrom = (BLOCK *) calloc(length, sizeof(BLOCK));
+	//std::cout<<"length: "<<length<<"\n";
+
+	std::vector<BLOCK> invChrom(length); //= (BLOCK *) calloc(length, sizeof(BLOCK));
+
+
+
+
 	invChrom[0].state = STER;
 	invChrom[length-1].state = ETER;
 
+
+
 	for (int j =1; j<length-1;j++){
 		invChrom[j] = inverted[j-1];
-//		printf("start: %d\t", invChrom[j].bstart);
-//		printf("start: %d\n", invChrom[j].bend);
+		//		printf("start: %d\t", invChrom[j].bstart);
+		//		printf("start: %d\n", invChrom[j].bend);
 
 		invChrom[j].bstart = sum - invChrom[j].bstart;
 		invChrom[j].bend = sum - invChrom[j].bend ;
@@ -362,9 +394,9 @@ SYNPATH invSYN(char chr[], int length){
 	}
 
 
-/*
-	printf("*****\n");
-	for (int j=0; j<length;j++){
+
+//	printf("*****\n");
+	/*for (int j=0; j<length;j++){
 		printf("%d\t", invChrom[j].astart);
 		printf("%d\t", invChrom[j].aend);
 		printf("%d\t", invChrom[j].bstart);
@@ -374,13 +406,16 @@ SYNPATH invSYN(char chr[], int length){
 		printf("%s\n", invChrom[j].bchr);
 	}
 */
-
+	//std::cout<<"invChrom.size: "<<invChrom.size()<<"\n";
 
 	SYNPATH synPath = parseSYN(invChrom,chr,length);
 
-	free(invChrom);
-	invChrom = NULL;
-//	printf("CHECK_3\n");
+	//free(invChrom);
+	//invChrom = NULL;
+	//	printf("CHECK_3\n");
+
+//std::cout<<"maxWeightPathLength: "<<synPath.maxWeightPathLength<<"\n";
+
 
 	return(synPath);
 

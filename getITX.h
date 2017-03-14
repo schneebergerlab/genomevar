@@ -11,8 +11,8 @@
 #include "init.h"
 
 //ITX identification
-void parseITX(BLOCK *chromo, char chr[], int num);
-void groupITX(BLOCK *chromo, char chr[], int num); //int a, int b);
-void writeITX(BLOCK *chromo,int a, int b);
+void parseITX(std::vector<BLOCK> &chromo, char chr[], int num);
+void groupITX(std::vector<BLOCK> &chromo, char chr[], int num); //int a, int b);
+void writeITX(std::vector<BLOCK> &chromo,int a, int b);
 
 #endif /* GETITX_H_ */

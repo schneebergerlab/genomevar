@@ -9,10 +9,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include "init.h"
+#include<iostream>
+
+//using namespace std;
 
 int BLOCK_NUM=0;
 int CHROMOSOME_NUM=0;
 
+std::vector<BLOCK> blocks;
+
+char CHROMOSOME[4096][4096];
+char mCHROMOSOME[4096][4096];
+
+ char inputFileName[249];
+ char minputFileName[249];
+ FILE *inputFile;
+ FILE *synOutFile;
+ FILE *ctxOutFile;
+ FILE *invOutFile;
+ FILE *itxOutFile;
+ FILE *dupOutFile;
 
 const int SYN = 1;
 const int SYN_IN_INV = 2;
@@ -27,6 +43,7 @@ const int TEMP_DUP = 100;
 const int STER = 101;
 const int ETER = 102;
 
+//BLOCK *mBlocks = (BLOCK *) calloc(100, sizeof(BLOCK));
 
 void init(int argc, char *argv[]) {
   char vers[] = "--version";
@@ -42,8 +59,8 @@ void init(int argc, char *argv[]) {
     displayHelp(1);
   }
 
-  strcpy(inputFileName, argv[argc-2]);
-  strcpy(minputFileName, argv[argc-1]);
+  strcpy(inputFileName, argv[argc-1]);
+ // strcpy(minputFileName, argv[argc-1]);
 
   // open output files:
 	char outfilename[] = "SynSearch.syn.txt";
@@ -76,7 +93,10 @@ void init(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	readInputFile();
+
+	readInputFile(inputFileName, blocks);
+
+	std::cout<<"size: "<<blocks.size()<<"\n";
 
 	filterBlocks();
 
@@ -99,8 +119,9 @@ void displayVersion() {
 	printf("SynSearch, version 0.03, 31.01,2017\n");
 }
 
-void readInputFile(char *fileName, BLOCK * blocks) {
 
+//std::vector<BLOCK> readInputFile(char *fileName, std::vector<BLOCK> blocks) {
+void readInputFile(char *fileName, std::vector<BLOCK> &blocks) {
   if ((inputFile = fopen(fileName, "r")) == NULL) {
 	  printf("Cannot open input file\n");
     exit(1);
@@ -122,6 +143,66 @@ void readInputFile(char *fileName, BLOCK * blocks) {
 
 	  line++;
 
+	  BLOCK new_block;
+
+	  if(i1<i2){
+		  new_block.astart = i1;
+		  new_block.aend = i2;
+		  adir = 1;
+	  }
+	  else{
+		  printf("Error in input file. Blocks in the first genome need to be in fwd direction (line %d)\n", line);
+		  exit(1);
+	  }
+
+	  if (i3 < i4) {
+	          new_block.bstart = i3;
+	          new_block.bend = i4;
+	          bdir = 1;
+	      } else {
+	          new_block.bstart = i4;
+	          new_block.bend = i3;
+	          bdir = -1;
+	      }
+
+
+	  new_block.alen = new_block.aend - new_block.astart + 1;
+
+	 	  new_block.iden = f7;
+
+	 	  if (adir == bdir) {
+	 		  new_block.dir = 1;
+	 	  } else {
+	 		  new_block.dir = -1;
+	 	  }
+
+	 	  strcpy(new_block.achr, c10);
+	 	 strcpy(new_block.bchr, c11);
+
+		  c++;
+
+		  if (strcmp(c10, currchr) == 0) { // same chr
+		 		  if (i1 < currpos) {
+		 			  printf("Error in input file. Positions in the first genome need to be sorted and larger 0 (line %d)\n", line);
+		 			  exit(1);
+		 		  }
+		 		  currpos = i1;
+		 	  }
+		 	  else { // different chromosome
+		 		  for (int i = 0; i < CHROMOSOME_NUM; i++) { // there already?
+		 				 if (strcmp(CHROMOSOME[i], c10) == 0) {
+		 					 printf("Error in input file. Chromosomes are not sorted (line %d).\n", line);
+		 					 exit(1);
+		 				 }
+		 		  }
+		 		  strcpy(CHROMOSOME[CHROMOSOME_NUM], c10);
+		 		  CHROMOSOME_NUM++;
+		 		  strcpy(currchr, c10);
+		 		  currpos = i1;
+		 	  }
+
+		  blocks.push_back(new_block);
+/*
 	  //read in block from A genome
 	  if (i1 < i2) {
 		  blocks[c].astart = i1;
@@ -158,7 +239,6 @@ void readInputFile(char *fileName, BLOCK * blocks) {
 	  strcpy(blocks[c].achr, c10);
 	  strcpy(blocks[c].bchr, c11);
 
-	  if(i1 == 3301488) printf("c10: %s \t blocks.achr:%s \t index: %d\n", c10, blocks[c].achr, c);
 	  // increment block counter
 	  c++;
 
@@ -182,8 +262,9 @@ void readInputFile(char *fileName, BLOCK * blocks) {
 		  strcpy(currchr, c10);
 		  currpos = i1;
 	  }
-  }
 
+	  */
+  }
   BLOCK_NUM = c;
 
   if (ret != EOF) {
@@ -192,6 +273,9 @@ void readInputFile(char *fileName, BLOCK * blocks) {
   }
 printf("FINSHED READING\n");
   fclose(inputFile);
+
+ // return(blocks);
+
 }
 
 void writeBlock(FILE *file, BLOCK block) {
@@ -204,12 +288,12 @@ void writeBlock(FILE *file, BLOCK block) {
 	fprintf(file, "%s\n", block.bchr);
 }
 
-void setEdgesBGenome(BLOCK *chromo, char chr[], int num) {
+void setEdgesBGenome(std::vector<BLOCK> &chromo, char chr[], int num) {
 
 	int first = -1, last = -1;
 
 	//printf("CHROMOSOME: %s\n",chr);
-	//printf("NUM: %d\n",num);
+	printf("******************NUM: %d\n",num);
 	for (int i = 1; i < num; i++) {
 		chromo[i].leftBNeighbor = -1;
 		chromo[i].rightBNeighbor = -1;
@@ -257,14 +341,25 @@ void setEdgesBGenome(BLOCK *chromo, char chr[], int num) {
 		chromo[last].rightBNeighbor = num-1;
 	}
 }
-
 void filterBlocks(){
 
 // Duplicates in Genome A
 	for(int i=0; i<BLOCK_NUM; i++){
+
+		//std::cout<<"CHECK"<<std::endl;
+
+	//	std::cout<<i<<"\n";
 		int check =0;
 		for(int j=i+1; j< BLOCK_NUM && check==0; j++){
+
+	//		std::cout<<"CHECK1"<<std::endl;
+
+	//		std::cout << blocks[i].achr<<"\n";
+
+//			std::cout<<"CHECKsdvgasdvas1"<<std::endl;
+
 			if(strcmp(blocks[i].achr, blocks[j].achr)==0){
+
 				if(blocks[i].astart > blocks[j].astart){
 					printf("Error in input file. Positions in the first genome need to be sorted and larger \n"
 							"i.astart: %d \t j.astart: %d \n", blocks[i].astart, blocks[j].astart);
@@ -320,11 +415,14 @@ void filterBlocks(){
 
 //	Duplicates in Genome B
 	for(int i=0; i< BLOCK_NUM; i++){
+	//	std::cout<<"CHECK"<<std::endl;
 		if(blocks[i].state == DUP) continue;
 
 		int check = 0;
+	//	std::cout<<"CHECK"<<"\n";
 
 		for(int j = i+1;j<BLOCK_NUM && check == 0; j++){
+	//		std::cout<<"CHECK"<<"\n";
 
 			if(blocks[j].state == DUP) continue;
 
@@ -402,4 +500,5 @@ void filterBlocks(){
 			}
 		}
 	}
+
 }

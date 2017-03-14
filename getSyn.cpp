@@ -5,10 +5,6 @@
  *      Author: goel
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-//#include "SynSearch.h"
 #include "getSyn.h"
 
 //BLOCK *chromo;
@@ -18,39 +14,35 @@ int *maxWeightPath;
 int maxWeightPathLength=0;
 
 
-SYNPATH parseSYN(BLOCK *chromo, char chr[], int num){
+SYNPATH parseSYN(std::vector<BLOCK> &chromo, char chr[], int num){
+
+
+	printf("********NUM: %d\n", num);
 	maxWeightPath = (int *) calloc(num, sizeof(int));
 	//test for commit
 
- //   printf("%s %d 10\n", chromo[59].achr, chromo[59].astart);
-
-
 	setEdgesBGenome(chromo, chr, num);
-  //  printf("%s %d 11\n", chromo[59].achr, chromo[59].astart);
-
-
 
 	// build all possible paths
 	setEdges(chromo, chr, num);
- //   printf("%s %d 12\n", chromo[59].achr, chromo[59].astart);
-
 
 
 	// calculate cummulative weigths for each path
 	// while only the heaviest path is followed
+
+
+
 	setPathWeights(chromo, chr, num);
 
 	backtraceSynPath(chromo, chr, num);
 
 	//printSynPath(chromo, chr, num);
 
-
-
 	SYNPATH synPath;
 	synPath.maxWeightPath = maxWeightPath;
 	synPath.maxWeightPathLength = maxWeightPathLength;
 
-//	printf("FINISHED SYN\n");
+	//	printf("FINISHED SYN\n");
 	maxWeight =0;
 	maxWeightBlock=0;
 	maxWeightPath = NULL;
@@ -58,90 +50,81 @@ SYNPATH parseSYN(BLOCK *chromo, char chr[], int num){
 	return(synPath);
 }
 
-void setEdges(BLOCK *chromo, char chr[], int num) {
-  //  printf("%s %d 14\n", chromo[59].achr, chromo[59].astart);
+void setEdges(std::vector<BLOCK> &chromo, char chr[], int num) {
 
-	for (int i = num -1 ; i > 0; i--) {
-
-
-
+	for (int i = num-2 ; i > 0; i--) {
+		printf("i: %d\n",i);
 		if (strcmp(chromo[i].achr, chr) == 0 && chromo[i].dir == 1 && chromo[i].state != CTX){ // only one chromosome at a time
+
+			//printf("i: %d \t Weight: %d \n",i, chromo[i].weight);
+
 			maxWeightBlock = i;
-			maxWeight = chromo[i].weight;
+			maxWeight = chromo[i].alen;
 			int setEdge = 0;
 			int j = i+1;
 			chromo[i].flagBadOut = 1;
-
 			while (setEdge == 0 && j < num-1) { // block j needs to existpr
-
-
 				if (strcmp(chromo[j].achr, chr) == 0 && chromo[j].dir == 1) {
 
 					if (testSynteny(i, j, chromo)) {
-				//		if(i==58  && (j==1203 || j==1204)){printf("%s %d i:%d j:%d -A\n", chromo[59].achr, chromo[59].astart, i,j);}
+						//printf("i: %d \t j: %d\n", i,j);
 
 						chromo[i].outEdge[chromo[i].outEdgeNum] = j;
-
-				//		if(i==58  && (j==1203 || j==1204)){printf("%s %d i:%d j:%d A\n", chromo[59].achr, chromo[59].astart, i,j);}
-
-
 						chromo[i].outEdgeNum++;
-
 						chromo[j].inEdge[chromo[j].inEdgeNum] = i;
 						chromo[j].inEdgeNum++;
-
 						// set badOut to 0 if it is the next block that is linked
-
-	//	if(i == 58 && (j==1203 || j==1204)){		    printf("%s %d i:%d j:%d C\n", chromo[59].achr, chromo[59].astart, i, j);}
-
 						if (i+1 == j && chromo[i].rightBNeighbor == j) {
-
 							chromo[i].flagBadOut = 0;
 							setEdge = 1;
 						}
-			//			if(i == 58 && (j==1203 || j==1204)){		    printf("%s %d i:%d j:%d C\n", chromo[59].achr, chromo[59].astart, i, j);}
-
 						// Only if the linked block is not badOut stop
 						// This is relevant if multiple translocations follow each other: multiple outEdges will be set for the block
-					/*	if (chromo[i].flagBadOut == 0) {				//Confirm With Korbinian
-							printf(" **** i : %d\t j: %d\n",i,j);
-							setEdge = 1;
-						}*/
-					}}
+						/*	if (chromo[i].flagBadOut == 0) {				//Confirm With Korbinian
+								printf(" **** i : %d\t j: %d\n",i,j);
+								setEdge = 1;
+							}
+						}}*/
+					}
+				}
 				j++;
+			}
+		}
+
+	}
+
+
 }
-		//    printf("%s %d i:%d B\n", chromo[59].achr, chromo[59].astart, i);
 
-		}}
- //   printf("%s %d 15\n", chromo[59].achr, chromo[59].astart);
-
-}
-
-int testSynteny(int i, int j, BLOCK *chromo) {
+int testSynteny(int i, int j, std::vector<BLOCK> &chromo) {
 	if (chromo[i].astart < chromo[j].astart && chromo[i].bstart < chromo[j].bstart && strcmp(chromo[i].achr, chromo[j].bchr)==0) {
 		return 1;
 	} else {
 		return 0;
-}}
+	}}
 
-void setPathWeights( BLOCK *chromo, char chr[], int num) {
+void setPathWeights(std::vector<BLOCK> &chromo, char chr[], int num) {
 
 	for (int i = 1; i < num-1; i++) {
 		if (strcmp(chromo[i].achr, chr) == 0 && chromo[i].dir == 1 && chromo[i].state != CTX){ // only one chromosome at a time and only fwd chromo
 			chromo[i].weight = chromo[i].alen;
-
 			for (int j = 0; j < chromo[i].inEdgeNum; j++) {
-
 				if (chromo[i].weight < chromo[chromo[i].inEdge[j]].weight + chromo[i].alen) {
 					chromo[i].weight = chromo[chromo[i].inEdge[j]].weight + chromo[i].alen;
 					chromo[i].maxInEdge = chromo[i].inEdge[j];
 					if (chromo[i].weight > maxWeight) {
+						printf("i: %d \t j: %d\n", i,j);
+
 						maxWeightBlock = i;
 						maxWeight = chromo[i].weight;
+					}
+				}
+			}
+		}
+	}
+}
 
-}}}}}}
-
-void backtraceSynPath( BLOCK *chromo, char chr[], int num){
+void backtraceSynPath( std::vector<BLOCK> &chromo, char chr[], int num){
 	int maxWeightPathReverse[num-2];
 	int length = 0;
 	int cblock = maxWeightBlock;
@@ -165,10 +148,13 @@ void backtraceSynPath( BLOCK *chromo, char chr[], int num){
 	maxWeightPathLength = length;
 }
 
-void printSynPath(BLOCK *chromo, SYNPATH synPath) {
+void printSynPath(std::vector<BLOCK> &chromo, SYNPATH synPath) {
 
 	maxWeightPathLength = synPath.maxWeightPathLength;
 	maxWeightPath = synPath.maxWeightPath;
+
+	std::cout<<"maxWeightPathLength: "<<maxWeightPathLength<<"\n";
+
 	int in = 0, s = -1;
 	for (int p = 0; p < maxWeightPathLength; p++) {
 		int i = maxWeightPath[p];
@@ -196,7 +182,6 @@ void printSynPath(BLOCK *chromo, SYNPATH synPath) {
 	if (in == 1) {
 		int e = maxWeightPathLength-1;
 		fprintf(synOutFile, "#SYN ");
-		fprintf(synOutFile, "#SYN");
 		fprintf(synOutFile, "%s %d %d - ", chromo[maxWeightPath[s]].achr, chromo[maxWeightPath[s]].astart, chromo[maxWeightPath[e]].aend);
 		fprintf(synOutFile, "%s %d %d\n", chromo[maxWeightPath[s]].bchr, chromo[maxWeightPath[s]].bstart, chromo[maxWeightPath[e]].bend);
 		for (int j = s; j < maxWeightPathLength; j++) {

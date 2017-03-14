@@ -8,7 +8,7 @@
 #include "getITX.h"
 
 
-void parseITX(BLOCK *chromo, char chr[], int num) {
+void parseITX(std::vector<BLOCK> &chromo, char chr[], int num) {
 	int i;
 	for (i = 1; i < num-1; i++) {
 		if (strcmp(chromo[i].bchr, chr) == 0 && chromo[i].state != CTX && chromo[i].state != SYN) { //&& blocks[i].state != SYN_IN_INV && blocks[i].state != INV) {
@@ -24,7 +24,7 @@ void parseITX(BLOCK *chromo, char chr[], int num) {
 
 
 
-void groupITX(BLOCK *chromo, char chr[], int num){
+void groupITX(std::vector<BLOCK> &chromo, char chr[], int num){
 	int i, in = -1;
 	int state;
 
@@ -80,7 +80,7 @@ void groupITX(BLOCK *chromo, char chr[], int num){
 }
 
 
-void writeITX(BLOCK *chromo, int a, int b) {
+void writeITX(std::vector<BLOCK> &chromo, int a, int b) {
 
 	//Header
 	switch(chromo[a].state){

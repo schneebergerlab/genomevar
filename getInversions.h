@@ -11,7 +11,7 @@
 #include "init.h"
 //Inversion identification
 
-void parseINV(BLOCK *chromo, char chr[], int num);
+void parseINV(std::vector<BLOCK> &chromo, char chr[], int num);
 SYNPATH invSYN(char chr[], int length);
 
 #endif /* GETINVERSIONS_H_ */

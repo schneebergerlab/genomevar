@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include<iostream>
 
 #include "SynSearch.h"
 /*
@@ -25,15 +26,15 @@
  * Nucmer's --simplify might remove many duplications, which is necessary for Synsearch (so far)
  */
 
+using namespace std;
 
 int main(int argc, char *argv[]) {
-	printf("LOL\n");
+
 
 	init(argc, argv);
-    printf("init\n");
 
     //fills some global variables, most importantly it fills blocks
- //   readInputFile();
+  //  readInputFile();
     printf("read file\n");
 
 
@@ -41,80 +42,72 @@ int main(int argc, char *argv[]) {
 
     printf("parse ctx\n");
     parseCTX();
-   // printf("lol\n");
-//printf("%d\n", CHROMOSOME_NUM);
+
+int dup_count =0;
 
 
-    for (int chr = 0; chr < CHROMOSOME_NUM; chr++) {
+//=0;
+for(unsigned i = 0; i < blocks.size();++i){
+ 	if(blocks[i].state == DUP){
+		dup_count++;
+	}
 
-    //	printf("%d\n",chr);
-    	int num=0;
+}
+   for (int chr = 0; chr < CHROMOSOME_NUM; chr++) {
+    	std::vector<int> indices;
     	for ( int i =0; i < BLOCK_NUM; i++){
     		if(strcmp(blocks[i].achr, CHROMOSOME[chr])== 0){
-    			num++;
+    			indices.push_back(i);
     		}
     	}
 
-    	num = num+2;				//Size of chromosone with add start and terminal blocks
 
-    	BLOCK *chromo = (BLOCK *) calloc(num, sizeof(BLOCK));
+    	std::vector<BLOCK> chromo(indices.size()); // = (BLOCK *) calloc(num, sizeof(BLOCK));
 
-    	if (chromo == 0)
-    	{
-    		printf("ERROR: Out of memory\n");
-    		return 1;
-    	}
+    //	int chromo_index=1;
 
-    	int chromo_index=1;
-    	chromo[0].state =  STER;
-    	chromo[num-1].state = ETER;
+   		for(std::vector<int>::iterator it = indices.begin();it!=indices.end();++it){
+   			chromo[it-indices.begin()] = blocks[*it];
+   		}
 
-    //    printf("%s %d 2\n", blocks[58].achr, blocks[58].astart);
+   		BLOCK new_block;
 
-   		for(int i=0; i < BLOCK_NUM; i++){
-    		if(strcmp(blocks[i].achr, CHROMOSOME[chr])== 0){
-    			chromo[chromo_index] = blocks[i];
-    			strcpy(chromo[chromo_index].achr, blocks[i].achr);
-    			strcpy(chromo[chromo_index].bchr, blocks[i].bchr);
+   		new_block.state = STER;
+   		chromo.insert(chromo.begin(), new_block);
 
-    			chromo_index++;
-    		}
-    	}
+   		new_block.state = ETER;
+   		chromo.push_back(new_block);
 
-   		SYNPATH synPath = parseSYN(chromo, CHROMOSOME[chr], num);
-
-   		parseITX(chromo, CHROMOSOME[chr], num);
-
-
-   		parseINV(chromo, CHROMOSOME[chr], num);
-
-
-   		groupITX(chromo, CHROMOSOME[chr], num);
-
-   	//    printf("%s %d 4\n", chromo[59].achr, chromo[59].astart);
-
+   		SYNPATH synPath = parseSYN(chromo, CHROMOSOME[chr], chromo.size());
 
    		printSynPath(chromo, synPath);
 
-   	   // printf("%s %d 5\n", chromo[59].achr, chromo[59].astart);
 
+   		parseITX(chromo, CHROMOSOME[chr],  chromo.size());
 
-   		parseITX(chromo, CHROMOSOME[chr], num);
+   		parseINV(chromo, CHROMOSOME[chr],  chromo.size());
 
-   		parseINV(chromo, CHROMOSOME[chr], num);
+   		groupITX(chromo, CHROMOSOME[chr],  chromo.size());
 
-   		groupITX(chromo, CHROMOSOME[chr], num);
-
-   		free(chromo);
-    	chromo = NULL;
+   		//free(chromo);
+ //   	chromo = NULL;
     	//free(maxWeightPath);
     	//free(longestInverted);
     	free(synPath.maxWeightPath);
+
+
     }
 
     printf("\n\n FINISHED SUCCESSFULLY");
 
     fclose(itxOutFile);
+    fclose(synOutFile);
+    fclose(invOutFile);
+    fclose(ctxOutFile);
+    fclose(dupOutFile);
 	return EXIT_SUCCESS;
+	/*free(mBlocks);
+	return(0);*/
+
 }
 
