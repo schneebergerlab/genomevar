@@ -15,6 +15,7 @@
 #include "getSyn.h"
 #include "getITX.h"
 #include "getInversions.h"
+#include "getDuplicates.h"
 
 
 

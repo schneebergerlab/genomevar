@@ -4,11 +4,6 @@
  *  Created on: Feb 2, 2017
  *      Author: goel
  */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "init.h"
 #include "getCTX.h"
 
@@ -63,6 +58,7 @@ void parseCTX() {
 
 	if (in != -1) {
 		writeCTX(in, i-2);
+
 	}
 }
 

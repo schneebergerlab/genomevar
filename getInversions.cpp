@@ -7,6 +7,7 @@
 
 #include "getInversions.h"
 #include "getSyn.h"
+#include <vector>
 //#include "SynSearch1.h"
 
 int *longestInverted;
@@ -14,7 +15,7 @@ std::vector<BLOCK> inverted;
 
 void parseINV(std::vector<BLOCK> &chromo, char chr[], int num) {
 
-	printf("num:%d\n",num);
+	//printf("num:%d\n",num);
 
 	//	printf("INSIDE\n");
 

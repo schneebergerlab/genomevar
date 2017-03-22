@@ -17,7 +17,6 @@ int maxWeightPathLength=0;
 SYNPATH parseSYN(std::vector<BLOCK> &chromo, char chr[], int num){
 
 
-	printf("********NUM: %d\n", num);
 	maxWeightPath = (int *) calloc(num, sizeof(int));
 	//test for commit
 
@@ -53,11 +52,7 @@ SYNPATH parseSYN(std::vector<BLOCK> &chromo, char chr[], int num){
 void setEdges(std::vector<BLOCK> &chromo, char chr[], int num) {
 
 	for (int i = num-2 ; i > 0; i--) {
-		printf("i: %d\n",i);
 		if (strcmp(chromo[i].achr, chr) == 0 && chromo[i].dir == 1 && chromo[i].state != CTX){ // only one chromosome at a time
-
-			//printf("i: %d \t Weight: %d \n",i, chromo[i].weight);
-
 			maxWeightBlock = i;
 			maxWeight = chromo[i].alen;
 			int setEdge = 0;
@@ -67,13 +62,11 @@ void setEdges(std::vector<BLOCK> &chromo, char chr[], int num) {
 				if (strcmp(chromo[j].achr, chr) == 0 && chromo[j].dir == 1) {
 
 					if (testSynteny(i, j, chromo)) {
-						//printf("i: %d \t j: %d\n", i,j);
 
-						chromo[i].outEdge[chromo[i].outEdgeNum] = j;
+						chromo[i].outEdge.push_back(j);
 						chromo[i].outEdgeNum++;
-						chromo[j].inEdge[chromo[j].inEdgeNum] = i;
+						chromo[j].inEdge.push_back(i);
 						chromo[j].inEdgeNum++;
-						// set badOut to 0 if it is the next block that is linked
 						if (i+1 == j && chromo[i].rightBNeighbor == j) {
 							chromo[i].flagBadOut = 0;
 							setEdge = 1;
@@ -96,7 +89,7 @@ void setEdges(std::vector<BLOCK> &chromo, char chr[], int num) {
 
 }
 
-int testSynteny(int i, int j, std::vector<BLOCK> &chromo) {
+int testSynteny(int i, int j, std::vector<BLOCK> const &chromo) {
 	if (chromo[i].astart < chromo[j].astart && chromo[i].bstart < chromo[j].bstart && strcmp(chromo[i].achr, chromo[j].bchr)==0) {
 		return 1;
 	} else {
@@ -113,7 +106,6 @@ void setPathWeights(std::vector<BLOCK> &chromo, char chr[], int num) {
 					chromo[i].weight = chromo[chromo[i].inEdge[j]].weight + chromo[i].alen;
 					chromo[i].maxInEdge = chromo[i].inEdge[j];
 					if (chromo[i].weight > maxWeight) {
-						printf("i: %d \t j: %d\n", i,j);
 
 						maxWeightBlock = i;
 						maxWeight = chromo[i].weight;
@@ -153,7 +145,6 @@ void printSynPath(std::vector<BLOCK> &chromo, SYNPATH synPath) {
 	maxWeightPathLength = synPath.maxWeightPathLength;
 	maxWeightPath = synPath.maxWeightPath;
 
-	std::cout<<"maxWeightPathLength: "<<maxWeightPathLength<<"\n";
 
 	int in = 0, s = -1;
 	for (int p = 0; p < maxWeightPathLength; p++) {

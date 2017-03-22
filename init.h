@@ -5,9 +5,11 @@
  *      Author: schneeberger
  */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <vector>
 
 #ifndef INIT_H_
@@ -33,6 +35,17 @@ typedef struct block {
 	int bend;
 	int blen;
 
+	int astate;
+	int bstate;
+
+
+	int aDupOf;
+	std::vector<int> aDuplicates;
+
+	int bDupOf;
+	std::vector<int> bDuplicates;
+
+
 	float iden;
 
 	int dir;
@@ -40,12 +53,12 @@ typedef struct block {
 
 	//A genome (edges describe all potential best syntenic paths)
 	int inEdgeNum;
-	int inEdge[MAX_EDGE_NUM];
+	std::vector<int> inEdge;
 	int maxInEdge; // point to the one inEdge that is on the most heavy path
 	
 
 	int outEdgeNum;
-	int outEdge[MAX_EDGE_NUM];
+	std::vector<int> outEdge;
 	//std::map<int,int> outEdge;
 
 
@@ -55,7 +68,7 @@ typedef struct block {
 
 //extern BLOCK blocks[MAX_BLOCK_NUM];
 extern std::vector<BLOCK> blocks;
-extern std::vector<BLOCK> mBlocks;
+extern std::vector<BLOCK> mblocks;
 
 typedef struct synPath{
 	int *maxWeightPath;
@@ -68,11 +81,11 @@ extern int mBLOCK_NUM;
 extern int CHROMOSOME_NUM;
 extern int mCHROMOSOME_NUM;
 
-extern char CHROMOSOME[4096][4096];
-extern char mCHROMOSOME[4096][4096];
+extern char CHROMOSOME[4096][256];
+extern char mCHROMOSOME[4096][256];
 
-extern char inputFileName[249];
-extern char minputFileName[249];
+extern char inputFileName[256];
+extern char minputFileName[256];
 extern FILE *inputFile;
 extern FILE *synOutFile;
 extern FILE *ctxOutFile;
@@ -86,10 +99,10 @@ extern FILE *dupOutFile;
 void setEdgesBGenome(std::vector<BLOCK> &chromo, char chr[], int num);
 void writeBlock(FILE *file, BLOCK block);
 void init(int argc, char *argv[]);
-void readInputFile(char *fileName, std::vector<BLOCK> &blocks);
+void readInputFile(char *fileName, std::vector<BLOCK> &blocks, int &BLOCK_NUM, int &CHROMOSOME_NUM, char (&CHROMOSOME)[4096][256]);
 void displayHelp(int exitCode);
 void displayVersion();
-void filterBlocks();
+void defineUniqueBlocks(std::vector<BLOCK> &blocks, int const &BLOCK_NUM);
 
 
 //Debug
@@ -97,17 +110,21 @@ void printBlocks();
 void printBlock();
 
 
-extern const int SYN;
-extern const int SYN_IN_INV;
-extern const int CTX;
-extern const int INV;
-extern const int ITX;
-extern const int INV_ITX;
-extern const int ITX_IN_INV;
-extern const int DUP;
-extern const int TEMP_DUP;
-extern const int STER;
-extern const int ETER;
+extern const int RED;				//REDUNDANT
+extern const int NA;				//NOT-ASSIGNED
+extern const int SYN;				//SUNTENIC
+extern const int SYN_IN_INV;		//SYNTENIC INSIDE INVERSION
+extern const int CTX;				//CROSS CHROMOSOMAL TRANSLOCATION
+extern const int INV;				//INVERSION
+extern const int ITX;				//INTER CHROMOSOMAL TRANSLOCATION
+extern const int INV_ITX;			//INVERTED INTER CHROMOSOMAL TRANLSOCATION
+extern const int ITX_IN_INV;		//INTER CHROMOSOMAL TRANSLOCATION INSIDE INVERSION
+extern const int DUP;				//DUPLICATED
+extern const int UNI;				//UNIQUE
+
+extern const int TEMP_DUP;			//TEMPORARY DUPLICATE
+extern const int STER;				//START TERMINAL
+extern const int ETER;				//END TERMINAL
 
 
 #endif /* INIT_H_ */

@@ -8,12 +8,15 @@
  ============================================================================
  */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include<iostream>
-
 #include "SynSearch.h"
+
+
+
 /*
  * Missing:
  * Handle inversions at end of chr properly (perhaps introduce syntenic pseudo blocks at each chr end)
@@ -37,6 +40,28 @@ int main(int argc, char *argv[]) {
   //  readInputFile();
     printf("read file\n");
 
+    parseDUP(blocks, mblocks);
+
+
+    int countUNI=0, countDUP=0, countRED = 0;
+
+    for(int i=0; i<BLOCK_NUM; ++i){
+    	if(blocks[i].state == UNI) ++countUNI;
+    	if(blocks[i].state == DUP) ++countDUP;
+    	if(blocks[i].state == RED) ++countRED;
+    }
+
+    std::cout<<countUNI<<"\t"<<countDUP<<"\t"<<countRED<<"\n";
+
+    countUNI=0;
+    countDUP=0;
+
+    for(int i=0; i<mBLOCK_NUM; ++i){
+       	if(mblocks[i].state == UNI) ++countUNI;
+       	if(mblocks[i].state == DUP) ++countDUP;
+       }
+
+    std::cout<<countUNI<<"\t"<<countDUP<<"\n";
 
     // First: parse out cross chromosomal translocations
 
