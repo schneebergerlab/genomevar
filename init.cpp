@@ -204,8 +204,8 @@ void readInputFile(char *fileName, std::vector<BLOCK> &blocks, int &BLOCK_NUM, i
 		} else {
 			new_block.dir = -1;
 		}
-		strcpy(new_block.achr, c10);
-		strcpy(new_block.bchr, c11);
+		new_block.achr = c10;
+		new_block.bchr = c11;
 
 		new_block.astate = NA;
 		new_block.bstate = NA;
@@ -250,8 +250,8 @@ void writeBlock(FILE *file, BLOCK block) {
 	fprintf(file, "%d\t", block.bstart);
 	fprintf(file, "%d\t", block.bend);
 	fprintf(file, "%d\t", block.dir);
-	fprintf(file, "%s\t", block.achr);
-	fprintf(file, "%s\n", block.bchr);
+	fprintf(file, "%s\t", block.achr.c_str());
+	fprintf(file, "%s\n", block.bchr.c_str());
 }
 
 void setEdgesBGenome(std::vector<BLOCK> &chromo, char chr[], int num) {
@@ -261,7 +261,7 @@ void setEdgesBGenome(std::vector<BLOCK> &chromo, char chr[], int num) {
 	for (int i = 1; i < num; i++) {
 		chromo[i].leftBNeighbor = -1;
 		chromo[i].rightBNeighbor = -1;
-		if (strcmp(chromo[i].bchr, chr) == 0 && chromo[i].state != CTX){ // only one chr at a time and only on one chr
+		if (chromo[i].bchr.compare(chr) == 0 && chromo[i].state != CTX){ // only one chr at a time and only on one chr
 
 			// This is not a good sorting algorithm, but as the list is almost sorted this should work.
 

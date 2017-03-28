@@ -11,7 +11,7 @@
 void parseITX(std::vector<BLOCK> &chromo, char chr[], int num) {
 	int i;
 	for (i = 1; i < num-1; i++) {
-		if (strcmp(chromo[i].bchr, chr) == 0 && chromo[i].state != CTX && chromo[i].state != SYN) { //&& blocks[i].state != SYN_IN_INV && blocks[i].state != INV) {
+		if (chromo[i].bchr.compare(chr) == 0 && chromo[i].state != CTX && chromo[i].state != SYN) { //&& blocks[i].state != SYN_IN_INV && blocks[i].state != INV) {
 			if(chromo[i].dir == 1){
 				chromo[i].state = ITX;
 			}
@@ -31,7 +31,7 @@ void groupITX(std::vector<BLOCK> &chromo, char chr[], int num){
 
 	for (i = 1; i < num-1; i++) {
 
-		if (strcmp(chromo[i].bchr, chr) == 0 && (chromo[i].state == ITX || chromo[i].state == INV_ITX || chromo[i].state == ITX_IN_INV)) {
+		if (chromo[i].bchr.compare(chr) == 0 && (chromo[i].state == ITX || chromo[i].state == INV_ITX || chromo[i].state == ITX_IN_INV)) {
 
 			if (in == -1) {
 				in = i;
@@ -42,7 +42,7 @@ void groupITX(std::vector<BLOCK> &chromo, char chr[], int num){
 				// If yes, do nothing
 				// If no, print old set
 				int together = 1;
-				if (strcmp(chromo[i].bchr, chromo[i-1].bchr) != 0 || chromo[i].dir != chromo[i-1].dir) {
+				if (chromo[i].bchr.compare(chromo[i-1].bchr) != 0 || chromo[i].dir != chromo[i-1].dir) {
 					// not on same chromosome or different direction?
 					together = 0;
 
@@ -87,20 +87,20 @@ void writeITX(std::vector<BLOCK> &chromo, int a, int b) {
 	case 5://ITX
 		fprintf(itxOutFile,"#ITX\t");
 		//printf("chr : %s \t chr: %d\n", chromo[a].achr, chromo[a].achr);
-		fprintf(itxOutFile, "%s %d %d - ", chromo[a].achr, chromo[a].astart, chromo[b].aend);
-		fprintf(itxOutFile, "%s %d %d\n", chromo[a].bchr, chromo[b].bstart, chromo[b].bend);
+		fprintf(itxOutFile, "%s %d %d - ", chromo[a].achr.c_str(), chromo[a].astart, chromo[b].aend);
+		fprintf(itxOutFile, "%s %d %d\n", chromo[a].bchr.c_str(), chromo[b].bstart, chromo[b].bend);
 		break;
 
 	case 6: //Inverted ITX
 		fprintf(itxOutFile,"#INV_ITX\t");
-		fprintf(itxOutFile, "%s %d %d - ", chromo[a].achr, chromo[a].astart, chromo[b].aend);
-		fprintf(itxOutFile, "%s %d %d\n", chromo[a].bchr, chromo[b].bstart, chromo[a].bend);
+		fprintf(itxOutFile, "%s %d %d - ", chromo[a].achr.c_str(), chromo[a].astart, chromo[b].aend);
+		fprintf(itxOutFile, "%s %d %d\n", chromo[a].bchr.c_str(), chromo[b].bstart, chromo[a].bend);
 		break;
 
 	case 7: //Inverted ITX
 		fprintf(itxOutFile,"#ITX_IN_INV\t");
-		fprintf(itxOutFile, "%s %d %d - ", chromo[a].achr, chromo[a].astart, chromo[b].aend);
-		fprintf(itxOutFile, "%s %d %d\n", chromo[a].bchr, chromo[b].bstart, chromo[a].bend);
+		fprintf(itxOutFile, "%s %d %d - ", chromo[a].achr.c_str(), chromo[a].astart, chromo[b].aend);
+		fprintf(itxOutFile, "%s %d %d\n", chromo[a].bchr.c_str(), chromo[b].bstart, chromo[a].bend);
 		break;
 	}
 

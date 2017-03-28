@@ -5,12 +5,14 @@
  *      Author: goel
  */
 #include "init.h"
+#include <iostream>
+#include <algorithm>
 #ifndef GETDUPLICATES_H_
 #define GETDUPLICATES_H_
 
-void parseDUP(std::vector<BLOCK> &blocks, std::vector<BLOCK> &mBlocks);
-void filterBlocks(std::vector<BLOCK> &blocks);
-void filterBlocks(std::vector<BLOCK> &mBlocks, std::vector<BLOCK> const &blocks);
+FILTEREDDATA parseDUP(std::vector<BLOCK> &blocks, std::vector<BLOCK> &mBlocks, int threshold);
+void filterBlocks(std::vector<BLOCK> &blocks, int threshold);
+void filterBlocks(std::vector<BLOCK> &mBlocks, std::vector<BLOCK> const &blocks, int threshold);
 
 
 

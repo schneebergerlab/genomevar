@@ -16,6 +16,7 @@
 #include "getITX.h"
 #include "getInversions.h"
 #include "getDuplicates.h"
+#include "tests.h"
 
 
 

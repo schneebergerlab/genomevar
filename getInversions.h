@@ -9,6 +9,7 @@
 #define GETINVERSIONS_H_
 
 #include "init.h"
+#include <iostream>
 //Inversion identification
 
 void parseINV(std::vector<BLOCK> &chromo, char chr[], int num);

@@ -32,56 +32,75 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-
+    std::vector<BLOCK> uniBlocks;
+    std::vector<BLOCK> dupBlocks;
 
 	init(argc, argv);
+	//estimateThreshold(blocks);
 
     //fills some global variables, most importantly it fills blocks
   //  readInputFile();
     printf("read file\n");
 
-    parseDUP(blocks, mblocks);
+    if(argc == 5 and strcmp(argv[1], "-1")==0 and strcmp(argv[3],"-m")==0){
+        FILTEREDDATA fData = parseDUP(blocks, mblocks, 50);
+
+        uniBlocks = fData.uniBlocks;
+        dupBlocks = fData.dupBlocks;
+	}
+	else{
+	uniBlocks = blocks;
+	}
 
 
-    int countUNI=0, countDUP=0, countRED = 0;
+    int uniSize = uniBlocks.size();
 
-    for(int i=0; i<BLOCK_NUM; ++i){
-    	if(blocks[i].state == UNI) ++countUNI;
-    	if(blocks[i].state == DUP) ++countDUP;
-    	if(blocks[i].state == RED) ++countRED;
-    }
 
-    std::cout<<countUNI<<"\t"<<countDUP<<"\t"<<countRED<<"\n";
-
-    countUNI=0;
-    countDUP=0;
-
-    for(int i=0; i<mBLOCK_NUM; ++i){
-       	if(mblocks[i].state == UNI) ++countUNI;
-       	if(mblocks[i].state == DUP) ++countDUP;
-       }
-
-    std::cout<<countUNI<<"\t"<<countDUP<<"\n";
+//    int countUNI=0, countDUP=0, countRED = 0;
+//
+//    for(int i=0; i<BLOCK_NUM; ++i){
+//    	if(blocks[i].state == UNI) ++countUNI;
+//    	if(blocks[i].state == DUP) ++countDUP;
+//    	if(blocks[i].state == RED) ++countRED;
+//    }
+//
+//    std::cout<<countUNI<<"\t"<<countDUP<<"\t"<<countRED<<"\n";
+//
+//    countUNI=0;
+//    countDUP=0;
+//
+//    for(int i=0; i<mBLOCK_NUM; ++i){
+//       	if(mblocks[i].state == UNI) ++countUNI;
+//       	if(mblocks[i].state == DUP) ++countDUP;
+//       }
+//
+//    std::cout<<countUNI<<"\t"<<countDUP<<"\n";
 
     // First: parse out cross chromosomal translocations
 
     printf("parse ctx\n");
-    parseCTX();
 
-int dup_count =0;
+    parseCTX(uniBlocks);
 
 
-//=0;
-for(unsigned i = 0; i < blocks.size();++i){
- 	if(blocks[i].state == DUP){
-		dup_count++;
-	}
+//int dup_count =0;
+//
+//
+////=0;
+//for(unsigned i = 0; i < blocks.size();++i){
+// 	if(blocks[i].state == DUP){
+//		dup_count++;
+//	}
+//}
 
-}
+
    for (int chr = 0; chr < CHROMOSOME_NUM; chr++) {
+
+
+
     	std::vector<int> indices;
-    	for ( int i =0; i < BLOCK_NUM; i++){
-    		if(strcmp(blocks[i].achr, CHROMOSOME[chr])== 0){
+    	for ( int i =0; i < uniSize; ++i){
+    		if(uniBlocks[i].achr.compare(CHROMOSOME[chr])== 0){
     			indices.push_back(i);
     		}
     	}
@@ -92,7 +111,7 @@ for(unsigned i = 0; i < blocks.size();++i){
     //	int chromo_index=1;
 
    		for(std::vector<int>::iterator it = indices.begin();it!=indices.end();++it){
-   			chromo[it-indices.begin()] = blocks[*it];
+   			chromo[it-indices.begin()] = uniBlocks[*it];
    		}
 
    		BLOCK new_block;

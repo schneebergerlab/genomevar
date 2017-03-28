@@ -8,9 +8,11 @@
 #ifndef GETCTX_H_
 #define GETCTX_H_
 
+#include <iostream>
+
 //CTX identification
-void parseCTX();
-void writeCTX(int a, int b);
+void parseCTX(std::vector<BLOCK> &blocks);
+void writeCTX(std::vector<BLOCK> &blocks, int a, int b);
 
 
 #endif /* GETCTX_H_ */

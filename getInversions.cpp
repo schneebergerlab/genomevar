@@ -15,11 +15,15 @@ std::vector<BLOCK> inverted;
 
 void parseINV(std::vector<BLOCK> &chromo, char chr[], int num) {
 
+    std::cout<<"START\n";
+
+
 	//printf("num:%d\n",num);
 
 	//	printf("INSIDE\n");
 
 	for (int i = 1; i < num-1; i++) {
+
 
 
 		int forward[num], backward[num];
@@ -28,8 +32,15 @@ void parseINV(std::vector<BLOCK> &chromo, char chr[], int num) {
 			forward[j] =0;
 			backward[j] = 0;
 		}
-		if (strcmp(chromo[i].bchr, chr) == 0 && chromo[i].state != CTX){
+		if (chromo[i].bchr.compare(chr) == 0 && chromo[i].state != CTX){
+
+
 			if (chromo[i].dir == -1) {
+
+													   		    std::cout<<"CHECK1\n";
+
+
+
 				/*	 now decide whether the inversion is translocated or not
 				 *
 				 * Set right B neighbor */
@@ -50,9 +61,12 @@ void parseINV(std::vector<BLOCK> &chromo, char chr[], int num) {
 					leftA--;
 				}
 
+										   		   // std::cout<<"CHECK2\n";
 
 
 				if (!(chromo[leftA].state == STER && chromo[rightB].state == ETER)) {
+
+
 
 
 					//Special case: whole chr inverted, means no inversion as then the alignment dir wrong
@@ -144,6 +158,7 @@ void parseINV(std::vector<BLOCK> &chromo, char chr[], int num) {
 					}
 					else {*/
 
+
 					if (rightB > i) { // otherwise running back is senseless and no inversion is found
 						//Run back on A genome until an inversion is found
 
@@ -222,8 +237,8 @@ void parseINV(std::vector<BLOCK> &chromo, char chr[], int num) {
 							 */
 
 							fprintf(invOutFile, "#INV ");
-							fprintf(invOutFile, "%s %d %d - ", chromo[invBeginA].achr, chromo[invBeginA].astart, chromo[invEndA].aend);
-							fprintf(invOutFile, "%s %d %d\n", chromo[invEndA].bchr, chromo[invEndA].bstart, chromo[invBeginA].bend);
+							fprintf(invOutFile, "%s %d %d - ", chromo[invBeginA].achr.c_str(), chromo[invBeginA].astart, chromo[invEndA].aend);
+							fprintf(invOutFile, "%s %d %d\n", chromo[invEndA].bchr.c_str(), chromo[invEndA].bstart, chromo[invBeginA].bend);
 
 							std::vector<int> longestInverted(invEndA - invBeginA +1);
 							int invCount = 0 ;
@@ -355,11 +370,17 @@ void parseINV(std::vector<BLOCK> &chromo, char chr[], int num) {
 						}
 					}
 				}
+
+										   		    std::cout<<"CHECK\n";
+
 			}
 		}
 
 
 	}
+
+
+
 }
 
 

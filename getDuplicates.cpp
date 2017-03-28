@@ -5,42 +5,119 @@
  *      Author: goel
  */
 #include "getDuplicates.h"
-#include <iostream>
+//#include <iostream>
 
-void parseDUP(std::vector<BLOCK> &blocks,std::vector<BLOCK> &mBlocks){
+FILTEREDDATA parseDUP(std::vector<BLOCK> &blocks,std::vector<BLOCK> &mBlocks, int threshold){
 
 	std::cout<< "FINDING DUPLICATES\n";
 
+	int size = blocks.size();
+    int msize = mBlocks.size();
 
-	filterBlocks(blocks);
-	filterBlocks(mBlocks, blocks);
+
+	filterBlocks(blocks, threshold);
+	filterBlocks(mBlocks, blocks, threshold);
 
 	std::vector<BLOCK> mUni;
-
-	int msize = mBlocks.size();
 	for(int i =0; i < msize;++i){
 		if(mBlocks[i].state == UNI){
 			mUni.push_back(mBlocks[i]);
 		}
 	}
 
-	std::cout<<"SIZE: "<<mUni.size()<<"\n";
+	int mUniSize = mUni.size();
+	filterBlocks(mUni, threshold);
+
+//	int count = 0;
+//	int countDUP = 0;
+//	for(int i = 0; i < mUni.size(); ++i){
+//		/*if(mUni[i].state == UNI){
+//			count++;
+//			continue;
+//		}*/
+//		if(mUni[i].state == DUP){
+//		mUni.erase(mUni.begin()+i);
+//		continue;}
+//	}
+
+	FILTEREDDATA fData;
+
+	for(int i = 0; i < size; ++i){
+		if(blocks[i].state == UNI){
+			fData.uniBlocks.push_back(blocks[i]);
+			}
+			else if(blocks[i].state == DUP){
+                fData.dupBlocks.push_back(blocks[i]);
+			}
+        }
+
+    for(int i = 0; i < msize; ++i){
+        if(mBlocks[i].state == DUP) fData.dupBlocks.push_back(mBlocks[i]);
+    }
 
 
-	filterBlocks(mUni);
 
-	int count = 0;
-	for(int i = 0; i < mUni.size(); ++i){
-		if(mUni[i].state == UNI){
-			count++;
-		}
-	}
+    for(int i = 0; i < mUniSize; ++i){
+        if(mUni[i].state == UNI){
+            fData.uniBlocks.push_back(mUni[i]);
+        }
+        else if (mUni[i].state == DUP){
+            fData.dupBlocks.push_back(mUni[i]);
+        }
+    }
 
-	std::cout<<"COUNT: "<<count<<"\n";
+
+
+    std::stable_sort(fData.uniBlocks.begin(), fData.uniBlocks.end(), []( const BLOCK &lhs, const BLOCK &rhs){
+   // std::cout<<"lhs.start: "<<lhs.astart<<" rhs.astart: "<< rhs.astart<<"\n";
+        return lhs.astart > rhs.astart;
+        });
+
+
+
+//for(int i =0 ;i < fData.uniBlocks.size();++i){
+//std::cout<<fData.uniBlocks[i].achr<<"\n";
+//}
+    std::stable_sort(fData.uniBlocks.begin(), fData.uniBlocks.end(), [](const BLOCK& lhs, const BLOCK& rhs) -> bool{
+  //  std::cout<<lhs.achr.compare(rhs.achr)<<"\n";
+    if(lhs.achr.compare(rhs.achr) <= 0) return true;
+//
+//    std::cout<<"lhs.astart: " <<lhs.astart<<"  rhs.astart: " << rhs.astart<<"\n";
+//    std::cout<<"lhs.achr: "<< lhs.achr<<"\n";
+//    std::cout<<"rhs.achr: "<<rhs.achr<<"\n";
+
+   // if(i ==0) return true;
+//std::cout<<"done\n";
+        return false;        });
+
+
+
+    std::stable_sort(fData.dupBlocks.begin(), fData.dupBlocks.end(), [](const BLOCK &lhs, const BLOCK &rhs){
+        return lhs.astart > rhs.astart ;
+        });
+
+    std::stable_sort(fData.dupBlocks.begin(), fData.dupBlocks.end(), [](const BLOCK &lhs, const BLOCK &rhs) -> bool{
+        if(lhs.achr.compare(rhs.achr) <= 0) return true;
+        return false;
+        });
+
+
+//    for(int i = 1000; i < 2000;++i){
+//        std::cout<<i<<"  "<<fData.uniBlocks[i].astart<<"  "<<fData.uniBlocks[i].aend<<"  "<<fData.uniBlocks[i].achr<<"\n";
+//    }
+
+//     for(int i = 1000; i < 2000;++i){
+//        std::cout<<i<<"  "<<fData.dupBlocks[i].astart<<"  "<<fData.dupBlocks[i].aend<<"  "<<fData.dupBlocks[i].achr<<"\n";
+//    }
+
+    std::cout<<"uSIZE: "<<fData.uniBlocks.size()<<"  mSize: "<<fData.dupBlocks.size()<<"\n";
+
+	std::cout<<"FINISHED PARSE DUP"<<"\n";
+	return(fData);
 }
 
 
-void filterBlocks(std::vector<BLOCK> &blocks){
+void filterBlocks(std::vector<BLOCK> &blocks, int threshold){
 	// Identify duplicated regions in both genomes.
 	// Ties are solved by comparing the chromosomes of the aligment.
 	// If one block is CTX and other is not, then CTX block is
@@ -56,7 +133,7 @@ void filterBlocks(std::vector<BLOCK> &blocks){
 		if (blocks[i].astate == DUP) continue;
 		int check =0;
 		for(int j=i+1; j< size and check==0; j++){
-			if(strcmp(blocks[i].achr, blocks[j].achr)==0){
+			if(blocks[i].achr.compare(blocks[j].achr)==0){
 				if(blocks[i].astart > blocks[j].astart){
 					printf("Error in input file. Positions in the first genome need to be sorted and larger \n"
 							"i.astart: %d \t j.astart: %d \n", blocks[i].astart, blocks[j].astart);
@@ -88,12 +165,12 @@ void filterBlocks(std::vector<BLOCK> &blocks){
 							blocks[j].astate = DUP;
 						}
 						else{
-							if(abs(blocks[i].astart - blocks[j].astart) < 50 and abs(blocks[i].aend - blocks[j].aend) < 50){
-								if(strcmp(blocks[i].achr, blocks[i].bchr)==0 and strcmp(blocks[j].achr, blocks[j].bchr)!=0){
+							if(abs(blocks[i].astart - blocks[j].astart) < threshold and abs(blocks[i].aend - blocks[j].aend) < threshold){
+								if(blocks[i].achr.compare(blocks[i].bchr)==0 and blocks[j].achr.compare(blocks[j].bchr)!=0){
 									blocks[j].astate = DUP;
 									continue;
 								}
-								if(strcmp(blocks[i].achr, blocks[i].bchr)!=0 and strcmp(blocks[j].achr, blocks[j].bchr)==0){
+								if(blocks[i].achr.compare(blocks[i].bchr)!=0 and blocks[j].achr.compare(blocks[j].bchr)==0){
 									blocks[i].astate = DUP;
 									check = 1;
 									continue;
@@ -113,11 +190,11 @@ void filterBlocks(std::vector<BLOCK> &blocks){
 											"\t Block1 end: "<<blocks[i].aend<<"\t Block2 start: "<<blocks[j].astart<<"\t Block2 end: "<<blocks[j].aend<<"\n";
 								}
 							}else{
-								if(abs(blocks[i].astart - blocks[j].astart) > 50 and abs(blocks[i].aend - blocks[j].aend) < 50){
+								if(abs(blocks[i].astart - blocks[j].astart) >threshold and abs(blocks[i].aend - blocks[j].aend) < threshold){
 									blocks[j].astate = DUP;
 								}
 								else{
-									if(abs(blocks[i].astart - blocks[j].astart) < 50 and abs(blocks[i].aend - blocks[j].aend) > 50){
+									if(abs(blocks[i].astart - blocks[j].astart) <threshold and abs(blocks[i].aend - blocks[j].aend) > threshold){
 										blocks[i].astate = DUP;
 										check = 1;
 									}
@@ -136,7 +213,7 @@ void filterBlocks(std::vector<BLOCK> &blocks){
 		if(blocks[i].bstate == DUP) continue;
 		int check = 0;
 		for(int j = i+1; j < size and check == 0; j++){
-			if(strcmp(blocks[i].bchr, blocks[j].bchr) == 0){
+			if(blocks[i].bchr.compare(blocks[j].bchr) == 0){
 				if(blocks[i].bstart > blocks[j].bstart){
 					if(blocks[i].bstart >= blocks[j].bend) continue;
 					if (blocks[i].bend <= blocks[j].bend){
@@ -144,12 +221,12 @@ void filterBlocks(std::vector<BLOCK> &blocks){
 						check = 1;
 					}
 					else{
-						if(abs(blocks[i].bstart - blocks[j].bstart) < 50 && abs(blocks[i].bend - blocks[j].bend) < 50){
-							if(strcmp(blocks[i].achr, blocks[i].bchr)==0 and strcmp(blocks[j].achr, blocks[j].bchr)!=0){
+						if(abs(blocks[i].bstart - blocks[j].bstart) <threshold&& abs(blocks[i].bend - blocks[j].bend) < threshold){
+							if(blocks[i].achr.compare(blocks[i].bchr)==0 and blocks[j].achr.compare(blocks[j].bchr)!=0){
 								blocks[j].bstate = DUP;
 								continue;
 							}
-							if(strcmp(blocks[i].achr, blocks[i].bchr)!=0 and strcmp(blocks[j].achr, blocks[j].bchr)==0){
+							if(blocks[i].achr.compare(blocks[i].bchr)!=0 and blocks[j].achr.compare(blocks[j].bchr)==0){
 								blocks[i].bstate = DUP;
 								check = 1;
 								continue;
@@ -171,12 +248,12 @@ void filterBlocks(std::vector<BLOCK> &blocks){
 							}
 						}
 						else{
-							if(abs(blocks[i].bstart - blocks[j].bstart) > 50 && abs(blocks[i].bend - blocks[j].bend) < 50){
+							if(abs(blocks[i].bstart - blocks[j].bstart) >threshold&& abs(blocks[i].bend - blocks[j].bend) < threshold){
 								blocks[i].bstate = DUP;
 								check = 1;
 							}
 							else{
-								if(abs(blocks[i].bstart - blocks[j].bstart) < 50 && abs(blocks[i].bend - blocks[j].bend) > 50){
+								if(abs(blocks[i].bstart - blocks[j].bstart) <threshold&& abs(blocks[i].bend - blocks[j].bend) > threshold){
 									blocks[j].bstate = DUP;
 								}
 							}
@@ -210,12 +287,12 @@ void filterBlocks(std::vector<BLOCK> &blocks){
 								blocks[j].bstate = DUP;
 							}
 							else{
-								if(abs(blocks[i].bstart - blocks[j].bstart) < 50 && abs(blocks[i].bend - blocks[j].bend) < 50){
-									if(strcmp(blocks[i].achr, blocks[i].bchr)==0 and strcmp(blocks[j].achr, blocks[j].bchr)!=0){
+								if(abs(blocks[i].bstart - blocks[j].bstart) <threshold&& abs(blocks[i].bend - blocks[j].bend) < threshold){
+									if(blocks[i].achr.compare(blocks[i].bchr)==0 and blocks[j].achr.compare(blocks[j].bchr)!=0){
 										blocks[j].bstate = DUP;
 										continue;
 									}
-									if(strcmp(blocks[i].achr, blocks[i].bchr)!=0 and strcmp(blocks[j].achr, blocks[j].bchr)==0){
+									if(blocks[i].achr.compare(blocks[i].bchr)!=0 and blocks[j].achr.compare(blocks[j].bchr)==0){
 										blocks[i].bstate = DUP;
 										check = 1;
 										continue;
@@ -239,11 +316,11 @@ void filterBlocks(std::vector<BLOCK> &blocks){
 									}
 								}
 								else{
-									if(abs(blocks[i].bstart - blocks[j].bstart) > 50 && abs(blocks[i].bend - blocks[j].bend) < 50){
+									if(abs(blocks[i].bstart - blocks[j].bstart) >threshold && abs(blocks[i].bend - blocks[j].bend) < threshold){
 										blocks[j].bstate = DUP;
 									}
 									else{
-										if(abs(blocks[i].bstart - blocks[j].bstart) < 50 && abs(blocks[i].bend - blocks[j].bend) > 50){
+										if(abs(blocks[i].bstart - blocks[j].bstart) <threshold && abs(blocks[i].bend - blocks[j].bend) > threshold){
 											blocks[i].bstate = DUP;
 											check = 1;
 										}
@@ -278,7 +355,7 @@ void filterBlocks(std::vector<BLOCK> &blocks){
 	std::cout<<"FINISHED UNIQUE IDENTIFICATION \n";
 }
 
-void filterBlocks(std::vector<BLOCK> &mBlocks, std::vector<BLOCK> const &blocks){
+void filterBlocks(std::vector<BLOCK> &mBlocks, std::vector<BLOCK> const &blocks, int threshold){
 
 	int size = blocks.size();
 	int msize = mBlocks.size();
@@ -288,8 +365,8 @@ int countB = 0;
 	// Duplicates in Genome A
 	for(int i=0; i<msize; ++i){
 		for(int j=0; j< size; ++j){
-			if(strcmp(mBlocks[i].achr, blocks[j].achr)==0 and blocks[j].state == UNI){
-				if(!(((mBlocks[i].astart - blocks[j].astart) < -50) or ((mBlocks[i].aend - blocks[j].aend) > 50))){
+			if(mBlocks[i].achr.compare(blocks[j].achr)==0 and blocks[j].state == UNI){
+				if(!(((mBlocks[i].astart - blocks[j].astart) < -threshold ) or ((mBlocks[i].aend - blocks[j].aend) > threshold ))){
 					mBlocks[i].astate = DUP;
 					countA++;
 					break;
@@ -382,8 +459,8 @@ int countB = 0;
 
 	for(int i=0; i< msize; ++i){
 		for(int j = 0;j< size; ++j){
-			if((strcmp(mBlocks[i].bchr, blocks[j].bchr) == 0) and blocks[j].state == UNI){
-				if(!(((mBlocks[i].bstart - blocks[j].bstart) < -50) or ((mBlocks[i].bend - blocks[j].bend) > 50))){
+			if((mBlocks[i].bchr.compare(blocks[j].bchr) == 0) and blocks[j].state == UNI){
+				if(!(((mBlocks[i].bstart - blocks[j].bstart) < -threshold ) or ((mBlocks[i].bend - blocks[j].bend) > threshold ))){
 					mBlocks[i].bstate = DUP;
 					countB++;
 					break;

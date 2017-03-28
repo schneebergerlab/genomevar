@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include <vector>
+#include <string>
 
 #ifndef INIT_H_
 #define INIT_H_
@@ -25,12 +26,12 @@ typedef struct block {
 	int leftBNeighbor; //order on B genome
 	int rightBNeighbor;
 
-	char achr[256];
+	std::string achr;
 	int astart;
 	int aend;
 	int alen;
 
-	char bchr[256];
+	std::string bchr;
 	int bstart;
 	int bend;
 	int blen;
@@ -55,7 +56,7 @@ typedef struct block {
 	int inEdgeNum;
 	std::vector<int> inEdge;
 	int maxInEdge; // point to the one inEdge that is on the most heavy path
-	
+
 
 	int outEdgeNum;
 	std::vector<int> outEdge;
@@ -74,6 +75,11 @@ typedef struct synPath{
 	int *maxWeightPath;
 	int maxWeightPathLength;
 }SYNPATH;
+
+typedef struct filteredData{
+    std::vector<BLOCK> uniBlocks;
+    std::vector<BLOCK> dupBlocks;
+} FILTEREDDATA;
 
 extern int BLOCK_NUM;
 extern int mBLOCK_NUM;
