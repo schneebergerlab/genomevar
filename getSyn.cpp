@@ -15,33 +15,18 @@ int maxWeightPathLength=0;
 
 
 SYNPATH parseSYN(std::vector<BLOCK> &chromo, char chr[], int num){
-
-
 	maxWeightPath = (int *) calloc(num, sizeof(int));
 	//test for commit
-
 	setEdgesBGenome(chromo, chr, num);
-
 	// build all possible paths
 	setEdges(chromo, chr, num);
-
-
 	// calculate cummulative weigths for each path
 	// while only the heaviest path is followed
-
-
-
 	setPathWeights(chromo, chr, num);
-
 	backtraceSynPath(chromo, chr, num);
-
-	//printSynPath(chromo, chr, num);
-
 	SYNPATH synPath;
 	synPath.maxWeightPath = maxWeightPath;
 	synPath.maxWeightPathLength = maxWeightPathLength;
-
-	//	printf("FINISHED SYN\n");
 	maxWeight =0;
 	maxWeightBlock=0;
 	maxWeightPath = NULL;
@@ -50,7 +35,6 @@ SYNPATH parseSYN(std::vector<BLOCK> &chromo, char chr[], int num){
 }
 
 void setEdges(std::vector<BLOCK> &chromo, char chr[], int num) {
-
 	for (int i = num-2 ; i > 0; i--) {
 		if (chromo[i].achr.compare(chr) == 0 && chromo[i].dir == 1 && chromo[i].state != CTX){ // only one chromosome at a time
 			maxWeightBlock = i;
@@ -62,7 +46,6 @@ void setEdges(std::vector<BLOCK> &chromo, char chr[], int num) {
 				if (chromo[j].achr.compare(chr) == 0 && chromo[j].dir == 1) {
 
 					if (testSynteny(i, j, chromo)) {
-
 						chromo[i].outEdge.push_back(j);
 						chromo[i].outEdgeNum++;
 						chromo[j].inEdge.push_back(i);
@@ -83,10 +66,7 @@ void setEdges(std::vector<BLOCK> &chromo, char chr[], int num) {
 				j++;
 			}
 		}
-
 	}
-
-
 }
 
 int testSynteny(int i, int j, std::vector<BLOCK> const &chromo) {

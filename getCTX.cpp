@@ -18,12 +18,12 @@ void parseCTX(std::vector<BLOCK> &blocks) {
 	//those blocks that come from the same translocation, should be reported together
 	for (i = 0; i < bSize; i++) {
 		if (blocks[i].achr.compare(blocks[i].bchr) != 0) { // yes the two blocks are assigned to different chromosomes
-                            std::cout<<"LOL1\n";
-blocks[i].state = CTX;
+            //std::cout<<"LOL1\n";
+            blocks[i].state = CTX;
 			if (in == -1) {
 				in = i;
 			}
-			else {
+			else{
 				// There is a ctx already, do they belong together?
 				// If yes, do nothing
 				// If no, print old set
@@ -89,7 +89,4 @@ void writeCTX(std::vector<BLOCK> &blocks, int a, int b) {
 	for (int i = a; i <= b; i++) {
 		writeBlock(ctxOutFile, blocks[i]);
 	}
-
-
-
 }

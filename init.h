@@ -39,13 +39,15 @@ typedef struct block {
 	int astate;
 	int bstate;
 
+//
+//	int aDupOf;
+//	std::vector<int> aDuplicates;
+//
+//	int bDupOf;
+//	std::vector<int> bDuplicates;
 
-	int aDupOf;
-	std::vector<int> aDuplicates;
-
-	int bDupOf;
-	std::vector<int> bDuplicates;
-
+	int dupOf;
+	std::vector<int> duplicates;
 
 	float iden;
 

@@ -38,66 +38,22 @@ int main(int argc, char *argv[]) {
 	init(argc, argv);
 	//estimateThreshold(blocks);
 
-    //fills some global variables, most importantly it fills blocks
-  //  readInputFile();
     printf("read file\n");
 
     if(argc == 5 and strcmp(argv[1], "-1")==0 and strcmp(argv[3],"-m")==0){
-        FILTEREDDATA fData = parseDUP(blocks, mblocks, 50);
-
+        FILTEREDDATA fData;
+        parseDUP(blocks, mblocks, 100, fData);
         uniBlocks = fData.uniBlocks;
         dupBlocks = fData.dupBlocks;
 	}
 	else{
-	uniBlocks = blocks;
+        uniBlocks = blocks;
 	}
 
 
     int uniSize = uniBlocks.size();
-
-
-//    int countUNI=0, countDUP=0, countRED = 0;
-//
-//    for(int i=0; i<BLOCK_NUM; ++i){
-//    	if(blocks[i].state == UNI) ++countUNI;
-//    	if(blocks[i].state == DUP) ++countDUP;
-//    	if(blocks[i].state == RED) ++countRED;
-//    }
-//
-//    std::cout<<countUNI<<"\t"<<countDUP<<"\t"<<countRED<<"\n";
-//
-//    countUNI=0;
-//    countDUP=0;
-//
-//    for(int i=0; i<mBLOCK_NUM; ++i){
-//       	if(mblocks[i].state == UNI) ++countUNI;
-//       	if(mblocks[i].state == DUP) ++countDUP;
-//       }
-//
-//    std::cout<<countUNI<<"\t"<<countDUP<<"\n";
-
-    // First: parse out cross chromosomal translocations
-
-    printf("parse ctx\n");
-
     parseCTX(uniBlocks);
-
-
-//int dup_count =0;
-//
-//
-////=0;
-//for(unsigned i = 0; i < blocks.size();++i){
-// 	if(blocks[i].state == DUP){
-//		dup_count++;
-//	}
-//}
-
-
-   for (int chr = 0; chr < CHROMOSOME_NUM; chr++) {
-
-
-
+    for (int chr = 0; chr < CHROMOSOME_NUM; chr++) {
     	std::vector<int> indices;
     	for ( int i =0; i < uniSize; ++i){
     		if(uniBlocks[i].achr.compare(CHROMOSOME[chr])== 0){
@@ -105,20 +61,14 @@ int main(int argc, char *argv[]) {
     		}
     	}
 
-
-    	std::vector<BLOCK> chromo(indices.size()); // = (BLOCK *) calloc(num, sizeof(BLOCK));
-
-    //	int chromo_index=1;
-
+    	std::vector<BLOCK> chromo(indices.size());
    		for(std::vector<int>::iterator it = indices.begin();it!=indices.end();++it){
    			chromo[it-indices.begin()] = uniBlocks[*it];
    		}
 
    		BLOCK new_block;
-
    		new_block.state = STER;
    		chromo.insert(chromo.begin(), new_block);
-
    		new_block.state = ETER;
    		chromo.push_back(new_block);
 
