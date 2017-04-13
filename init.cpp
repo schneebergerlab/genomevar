@@ -11,7 +11,6 @@
 #include <string.h>
 */
 #include "init.h"
-#include<iostream>
 
 //using namespace std;
 
@@ -34,7 +33,7 @@ FILE *synOutFile;
 FILE *ctxOutFile;
 FILE *invOutFile;
 FILE *itxOutFile;
-FILE *dupOutFile;
+std::ofstream dupOutFile;
 
 const int RED = -1;
 const int NA = 0;
@@ -111,9 +110,9 @@ void init(int argc, char *argv[]) {
 		printf("Cannot open output file\n");
 		exit(1);
 	}
-
-	char outfilename5[] = "SynSearch.dup.txt";
-	if ((dupOutFile = fopen(outfilename5, "w")) == NULL) {
+    dupOutFile.open("SynSearch.dup.txt");
+	//char outfilename5[] = "SynSearch.dup.txt";
+	if (!dupOutFile.is_open()) {
 		printf("Cannot open output file\n");
 		exit(1);
 	}
@@ -253,6 +252,10 @@ void writeBlock(FILE *file, BLOCK block) {
 	fprintf(file, "%s\t", block.achr.c_str());
 	fprintf(file, "%s\n", block.bchr.c_str());
 }
+//
+//void writeBlock2(std::ofstream file, BLOCK block) {
+//
+//}
 
 void setEdgesBGenome(std::vector<BLOCK> &chromo, char chr[], int num) {
 

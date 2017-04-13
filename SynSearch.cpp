@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
     if(argc == 5 and strcmp(argv[1], "-1")==0 and strcmp(argv[3],"-m")==0){
         FILTEREDDATA fData;
-        parseDUP(blocks, mblocks, 100, fData);
+        parseDUP(blocks, mblocks, 50, fData);
         uniBlocks = fData.uniBlocks;
         dupBlocks = fData.dupBlocks;
 	}
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
     fclose(synOutFile);
     fclose(invOutFile);
     fclose(ctxOutFile);
-    fclose(dupOutFile);
+    dupOutFile.close();
 	return EXIT_SUCCESS;
 	/*free(mBlocks);
 	return(0);*/

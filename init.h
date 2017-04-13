@@ -12,6 +12,9 @@
 
 #include <vector>
 #include <string>
+#include<iostream>
+#include<fstream>
+
 
 #ifndef INIT_H_
 #define INIT_H_
@@ -99,13 +102,14 @@ extern FILE *synOutFile;
 extern FILE *ctxOutFile;
 extern FILE *invOutFile;
 extern FILE *itxOutFile;
-extern FILE *dupOutFile;
+extern std::ofstream dupOutFile;
 
 
 //General Helpers
 //void setEdgesBGenome(char chr[]);
 void setEdgesBGenome(std::vector<BLOCK> &chromo, char chr[], int num);
 void writeBlock(FILE *file, BLOCK block);
+//void writeBlock2(std::ofstream file, BLOCK block);
 void init(int argc, char *argv[]);
 void readInputFile(char *fileName, std::vector<BLOCK> &blocks, int &BLOCK_NUM, int &CHROMOSOME_NUM, char (&CHROMOSOME)[4096][256]);
 void displayHelp(int exitCode);

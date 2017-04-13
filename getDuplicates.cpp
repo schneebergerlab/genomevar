@@ -5,12 +5,8 @@
  *      Author: goel
  */
 #include "getDuplicates.h"
-//#include <iostream>
 
 void parseDUP(std::vector<BLOCK> &blocks,std::vector<BLOCK> &mBlocks, int threshold, FILTEREDDATA &fData){
-
-
-
 	std::cout<< "FINDING DUPLICATES\n";
 
 	int usize = blocks.size();
@@ -19,10 +15,6 @@ void parseDUP(std::vector<BLOCK> &blocks,std::vector<BLOCK> &mBlocks, int thresh
 	filterBlocks(blocks, threshold);
 
 	for(int i = 0; i < usize; ++i){
-
-//	if(blocks[i].astart == 19085099 and blocks[i].aend == 19086843 and blocks[i].achr == "Chr1" and blocks[i].bstart == 16494805 and blocks[i].bend == 16496546 and blocks[i].bchr == "Chr4"){
-//            std::cout<<"THE STATE OF : "<< blocks[i].state<<"\n";
-//            }
 		if(blocks[i].state == UNI){
 			fData.uniBlocks.push_back(blocks[i]);
         }
@@ -36,31 +28,18 @@ void parseDUP(std::vector<BLOCK> &blocks,std::vector<BLOCK> &mBlocks, int thresh
 	std::vector<BLOCK> mUni;
 
 	for(int i =0; i < msize;++i){
-
-//	if(mBlocks[i].astart == 19085099 and mBlocks[i].aend == 19086844 and mBlocks[i].achr == "Chr1" and mBlocks[i].bstart == 10641426 and mBlocks[i].bend == 10643170 and mBlocks[i].bchr == "Chr3"){
-//            std::cout<<"THE STATE IS : "<< mBlocks[i].state<<"\n";
-//            }
-
-
-		if(mBlocks[i].state == UNI){
+        if(mBlocks[i].state == UNI){
 			mUni.push_back(mBlocks[i]);
+			continue;
 		}
+        if(mBlocks[i].state == DUP) fData.dupBlocks.push_back(mBlocks[i]);
 	}
 
-
-
 	int mUniSize = mUni.size();
-/*
-    for(int i = 0; i < mUniSize; ++i){
-//		if(mUni[i].astart == 19085099 and mUni[i].aend == 19086844 and mUni[i].achr == "Chr1" and mUni[i].bstart == 10641426 and mUni[i].bend == 10643170 and mUni[i].bchr == "Chr3"){
-//            std::cout<<"THE STATE IS : "<< mUni[i].state<<"\n";
-//            }
-        mout<<mUni[i].astart<<"\t"<<mUni[i].aend<<"\t"<<mUni[i].bstart<<"\t"<<mUni[i].bend<<"\t"<<mUni[i].dir<<"\t"<<mUni[i].iden<<"\t"<<mUni[i].alen<<"\t"<<mUni[i].blen<<"\t"<<mUni[i].achr<<"\t"<<mUni[i].bchr<<"\n";
-    }
-    mout.close();
-    */
 
     filtermUni(mUni, threshold);
+    //filterBlocks(mUni, threshold);
+
 
     int countUni = 0;
     int countDup = 0;
@@ -77,18 +56,11 @@ void parseDUP(std::vector<BLOCK> &blocks,std::vector<BLOCK> &mBlocks, int thresh
     std::cout<<"UNIQUE MUNI : "<<countUni<<"  "<<countDup<<"  "<<countRed<<"\n";
 
 
-
-	filterBlocks(mUni, threshold);
-
-    for(int i = 0; i < msize; ++i){
-        if(mBlocks[i].state == DUP) fData.dupBlocks.push_back(mBlocks[i]);
-    }
-
-
   //  annotateDup(fData.dupBlocks, fData.uniBlocks, threshold);
     for(int i = 0; i < mUniSize; ++i){
+
         if(mUni[i].state == UNI){
-            //std::cout<<mUni[i].astart<<" "<<mUni[i].aend<<" "<<mUni[i].achr <<" "<<mUni[i].bstart<<" "<<mUni[i].bend<<" "<<mUni[i].bchr<<"\n";
+     //       std::cout<<mUni[i].astart<<" "<<mUni[i].aend<<" "<<mUni[i].achr <<" "<<mUni[i].bstart<<" "<<mUni[i].bend<<" "<<mUni[i].bchr<<"\n";
             fData.uniBlocks.push_back(mUni[i]);
         }
         else if (mUni[i].state == DUP){
@@ -96,21 +68,24 @@ void parseDUP(std::vector<BLOCK> &blocks,std::vector<BLOCK> &mBlocks, int thresh
         }
     }
 
-    std::stable_sort(fData.uniBlocks.begin(), fData.uniBlocks.end(), []( const BLOCK &lhs, const BLOCK &rhs){
-        return lhs.astart > rhs.astart;
-        });
+    sortBlocks(fData.uniBlocks);
+    sortBlocks(fData.dupBlocks);
 
-    std::stable_sort(fData.uniBlocks.begin(), fData.uniBlocks.end(), [](const BLOCK& lhs, const BLOCK& rhs) -> bool{
-    if(lhs.achr.compare(rhs.achr) <= 0) return true;
-        return false;        });
-
-    std::stable_sort(fData.dupBlocks.begin(), fData.dupBlocks.end(), [](const BLOCK &lhs, const BLOCK &rhs){
-        return lhs.astart > rhs.astart ;
-        });
-    std::stable_sort(fData.dupBlocks.begin(), fData.dupBlocks.end(), [](const BLOCK &lhs, const BLOCK &rhs) -> bool{
-        if(lhs.achr.compare(rhs.achr) <= 0) return true;
-        return false;
-        });
+//    std::stable_sort(fData.uniBlocks.begin(), fData.uniBlocks.end(), []( const BLOCK &lhs, const BLOCK &rhs){
+//        return lhs.astart > rhs.astart;
+//        });
+//
+//    std::stable_sort(fData.uniBlocks.begin(), fData.uniBlocks.end(), [](const BLOCK& lhs, const BLOCK& rhs) -> bool{
+//    if(lhs.achr.compare(rhs.achr) <= 0) return true;
+//        return false;        });
+//
+//    std::stable_sort(fData.dupBlocks.begin(), fData.dupBlocks.end(), [](const BLOCK &lhs, const BLOCK &rhs){
+//        return lhs.astart > rhs.astart ;
+//        });
+//    std::stable_sort(fData.dupBlocks.begin(), fData.dupBlocks.end(), [](const BLOCK &lhs, const BLOCK &rhs) -> bool{
+//        if(lhs.achr.compare(rhs.achr) <= 0) return true;
+//        return false;
+//        });
 
 
     std::cout<<"uSIZE: "<<fData.uniBlocks.size()<<"  mSize: "<<fData.dupBlocks.size()<<"\n";
@@ -132,34 +107,78 @@ void parseDUP(std::vector<BLOCK> &blocks,std::vector<BLOCK> &mBlocks, int thresh
 //
 //std::cout<<a<<"  "<<b<<"  "<<c<<"\n";
 
-//	annotateDup(fData.dupBlocks, fData.uniBlocks, threshold);
-	int sum =0;
-	for(int i = 0; i<fData.uniBlocks.size(); ++i){
-		sum+=fData.uniBlocks[i].duplicates.size();
-	}
-	std::cout<<fData.dupBlocks.size()<<"  "<<sum<<"\n";
+	annotateDup(fData.dupBlocks, fData.uniBlocks, threshold);
 
-	//printDup(fData.dupBlocks, fData.uniBlocks);
+
+    std::ofstream mout;
+    mout.open("uniBlocks.txt");
+    for(int i = 0; i < fData.uniBlocks.size(); ++i){
+        mout<<fData.uniBlocks[i].astart<<"\t"<<fData.uniBlocks[i].aend<<"\t"<<fData.uniBlocks[i].bstart<<"\t"<<
+            fData.uniBlocks[i].bend<<"\t"<<fData.uniBlocks[i].dir<<"\t"<<fData.uniBlocks[i].iden<<"\t"<<
+            fData.uniBlocks[i].alen<<"\t"<<fData.uniBlocks[i].blen<<"\t"<<fData.uniBlocks[i].achr<<"\t"<<
+            fData.uniBlocks[i].bchr<<"\t"<<fData.uniBlocks[i].astate<<"\t"<<fData.uniBlocks[i].bstate<<"\t"<<
+            fData.uniBlocks[i].state<<"\n";
+    }
+    mout.close();
+
+	std::vector<BLOCK> filterTest = mblocks;
+
+
+	for(int i =0; i < filterTest.size(); ++i){
+	    filterTest[i].state = NA;
+	    filterTest[i].state = NA;
+	    filterTest[i].state = NA;
+	}
+	int countAlarm = 0;
+	filtermUni(filterTest, threshold);
+
+    std::vector<int> countData = getStateCount(filterTest);
+
+    std::cout<<"STATE COUNT :  "<<countData[0] <<"  "<<countData[1]<<"  "<<countData[2]<<"\n";
+
+
+
+
+  //  std::ofstream mout;
+    mout.open("mBlocks.txt");
+    for(int i = 0; i < filterTest.size(); ++i){
+        mout<<filterTest[i].astart<<"\t"<<filterTest[i].aend<<"\t"<<filterTest[i].bstart<<"\t"<<
+            filterTest[i].bend<<"\t"<<filterTest[i].dir<<"\t"<<filterTest[i].iden<<"\t"<<
+            filterTest[i].alen<<"\t"<<filterTest[i].blen<<"\t"<<filterTest[i].achr<<"\t"<<
+            filterTest[i].bchr<<"\t"<<filterTest[i].astate<<"\t"<<filterTest[i].bstate<<"\t"<<
+            filterTest[i].state<<"\n";
+    }
+    mout.close();
 
 	std::vector<BLOCK> testUni, testDup;
 
-	for(int i = 0; i < mUniSize; ++i){
-	      if(mUni[i].astart == 9438785 and mUni[i].aend == 9440508 and mUni[i].achr == "Chr4" and mUni[i].bstart == 10641459 and mUni[i].bend == 10643170 and mUni[i].bchr == "Chr3"){
-            std::cout<<"LOL "<< mUni[i].state<<"\n";
-            }
-        if(mUni[i].state == UNI){
-            testUni.push_back(mUni[i]);
-     //       std::cout<<mUni[i].alen<<"\n";
+	for(int i = 0; i < filterTest.size(); ++i){
+        if(filterTest[i].state == UNI){
+            testUni.push_back(filterTest[i]);
             continue;
 
         }
-        if(mUni[i].state == DUP){
-            testDup.push_back(mUni[i]);
+        if(filterTest[i].state == DUP){
+            testDup.push_back(filterTest[i]);
             continue;
         }
     }
 
+    filterBlocks(testUni, threshold);
+    countData = getStateCount(testUni);
+    std::cout<<"STATE COUNT :  "<<countData[0] <<"  "<<countData[1]<<"  "<<countData[2]<<"\n";
+  //  annotateDup(fData.dupBlocks, fData.uniBlocks, threshold);
+
+    sortBlocks(testUni);
+    sortBlocks(testDup);
+
     annotateDup(testDup, testUni, threshold);
+    fData.uniBlocks.clear();
+    fData.uniBlocks.insert(fData.uniBlocks.begin(), testUni.begin(), testUni.end());
+    fData.dupBlocks.clear();
+    fData.dupBlocks.insert(fData.dupBlocks.begin(), testDup.begin(), testDup.end());
+
+    printDup(testDup, testUni);
 
 	std::cout<<"FINISHED PARSE DUP"<<"\n";
 }
@@ -180,6 +199,7 @@ void filterBlocks(std::vector<BLOCK> &blocks, int threshold){
 	// Duplicates in Genome A
 	for(int i=0; i<size; i++){
 		//if (blocks[i].astate == DUP) continue;
+		if (blocks[i].state == UNI) continue;
 		int check =0;
 
 		for(int j=i+1; j< size and check==0; j++){
@@ -431,10 +451,6 @@ void filterBlocks(std::vector<BLOCK> &blocks, int threshold){
 	}
 
 	for (int i=0; i<size; i++){
-        if(blocks[i].astart == 9438785 and blocks[i].bstart == 10641459 and blocks[i].achr == "Chr4"){
-            std::cout<<"A.state: "<<blocks[i].astate<<"  B.state: "<<blocks[i].bstate<<"\n";
-        }
-
 
 		if(!(blocks[i].astate == DUP or blocks[i].bstate == DUP)){
 			blocks[i].state = UNI;
@@ -453,22 +469,16 @@ void filterBlocks(std::vector<BLOCK> &blocks, int threshold){
 			++countC;
 			continue;
 		}
-
-
 	}
 	std::cout<<size<<"  "<<countA<< "  "<<countB<<"  "<<countC<<"   FINISHED UNIQUE IDENTIFICATION \n";
 }
 
 void filterBlocks(std::vector<BLOCK> &mBlocks, std::vector<BLOCK> const &blocks, int threshold){
-
-
 	int usize = blocks.size();
 	int msize = mBlocks.size();
     int countA = 0;
     int countB = 0;
     int countC = 0;
-
-
 
 	// Duplicates in Genome A
 	for(int i=0; i<msize; ++i){
@@ -497,6 +507,9 @@ void filterBlocks(std::vector<BLOCK> &mBlocks, std::vector<BLOCK> const &blocks,
 		}
 	}
 	for (int i=0; i<msize; ++i){
+//	    if(mBlocks[i].astart == 26590117 and mBlocks[i].aend == 26592092 and mBlocks[i].achr == "Chr5" and mBlocks[i].bstart == 25985707){
+//	        std::cout<<"state  "<<mBlocks[i].astate<<"  "<<mBlocks[i].bstate<<"\n";
+//	    }
 		if(!(mBlocks[i].astate == DUP or mBlocks[i].bstate == DUP)){
 			mBlocks[i].state = UNI;
 			++countA;
@@ -521,6 +534,11 @@ void filterBlocks(std::vector<BLOCK> &mBlocks, std::vector<BLOCK> const &blocks,
 void filtermUni(std::vector<BLOCK> &blocks, int threshold){
 
     int msize = blocks.size();
+    int naCount = 0;
+    int uniCount = 0;
+
+    std::vector<BLOCK> uniBlocks, dupBlocks, redBlocks;
+    std::vector<BLOCK> temp;
 
     for(int i =0; i < msize ;++i){
         blocks[i].astate = NA;
@@ -528,8 +546,89 @@ void filtermUni(std::vector<BLOCK> &blocks, int threshold){
         blocks[i].state = NA;
     }
 
+    do{
+        naCount = 0;
+        uniCount = 0;
+
+        filterBlocks(blocks, threshold);
+
+        for(int j = 0; j < blocks.size(); ++j){
+            if(blocks[j].state == UNI){
+                uniBlocks.push_back(blocks[j]);
+          //      blocks.erase(blocks.begin() + j);
+        //        --j;
+                ++uniCount;
+                continue;
+            }
+            blocks[j].astate = NA;
+            blocks[j].bstate = NA;
+            blocks[j].state = NA;
+            temp.push_back(blocks[j]);
+        }
+
+        blocks.clear();
+        blocks.insert(blocks.end(), temp.begin(), temp.end());
+        temp.clear();
 
 
+
+
+        if(uniCount == 0){
+            std::cout<<"Unresolvable alignments found. Saved in unresolved.txt\n";
+            std::ofstream unr;
+            unr.open("unresolved.txt");
+            for(int j = 0; j < blocks.size(); ++j){
+                unr<<blocks[j].astart<<"\t"<<blocks[j].aend<<"\t"<<blocks[j].bstart<<"\t"<<
+                    blocks[j].bend<<"\t"<<blocks[j].dir<<"\t"<<blocks[j].iden<<"\t"<<
+                    blocks[j].alen<<"\t"<<blocks[j].blen<<"\t"<<blocks[j].achr<<"\t"<<
+                    blocks[j].bchr<<"\n";
+            }
+
+            blocks.clear();
+            unr.close();
+            break;
+        }
+
+        sortBlocks(uniBlocks);
+//        std::stable_sort(uniBlocks.begin(), uniBlocks.end(), []( const BLOCK &lhs, const BLOCK &rhs){
+//            return lhs.astart > rhs.astart;
+//        });
+//
+//        std::stable_sort(uniBlocks.begin(), uniBlocks.end(), [](const BLOCK& lhs, const BLOCK& rhs) -> bool{
+//            if(lhs.achr.compare(rhs.achr) <= 0) return true;
+//            return false;
+//        });
+
+        filterBlocks(blocks, uniBlocks, threshold);
+        for(int j = 0; j < blocks.size(); ++j){
+            if(blocks[j].state == DUP){
+                dupBlocks.push_back(blocks[j]);
+                //blocks.erase(blocks.begin() + j);
+                //--j;
+                continue;
+            }
+            else if(blocks[j].state == RED){
+                redBlocks.push_back(blocks[j]);
+                //blocks.erase(blocks.begin() + j);
+                //--j;
+                continue;
+            }else if(blocks[j].state == UNI){
+                blocks[j].state = NA;
+                temp.push_back(blocks[j]);
+                ++naCount;
+            }
+        }
+
+        blocks.clear();
+        blocks.insert(blocks.end(), temp.begin(), temp.end());
+        temp.clear();
+//        for(int i = 0; i < msize; ++i){
+//            if(blocks[i].state == NA) ++naCount;
+//        }
+    }while(naCount != 0);
+
+
+/*
     for(int i = 0; i < msize; ++i){
         for(int j=i+1; j < msize; j++){
             if(abs(blocks[i].astart - blocks[j].astart) + abs(blocks[i].aend - blocks[j].aend) < threshold){
@@ -584,7 +683,6 @@ void filtermUni(std::vector<BLOCK> &blocks, int threshold){
     int change = 0;
     do{
             std::cout<<"**START***";
-
         change = 0;
         for(int i = 0; i < blocks.size(); ++i){
 
@@ -608,9 +706,6 @@ void filtermUni(std::vector<BLOCK> &blocks, int threshold){
                         }else if(blocks[i].astart >= blocks[j].astart and blocks[i].aend <= blocks[j].aend){
                             blocks[i].astate = DUP;
                         }
-
-
-
 
                         if(abs(blocks[i].bstart - blocks[j].bstart) + abs(blocks[i].bend - blocks[j].bend) < threshold){
                             blocks[i].bstate = DUP;
@@ -639,18 +734,13 @@ void filtermUni(std::vector<BLOCK> &blocks, int threshold){
 
         std::cout<<"CHANGE: "<<change<<"\n";
     }while(change!=0);
-
-std::cout<<"mUniSize: "<<blocks.size()<<"\n";
-    std::ofstream mout;
-    mout.open("mUni.txt");
-    for(int i = 0; i < blocks.size(); ++i){
-        mout<<blocks[i].astart<<"\t"<<blocks[i].aend<<"\t"<<blocks[i].bstart<<"\t"<<blocks[i].bend<<"\t"<<blocks[i].dir<<"\t"<<blocks[i].iden<<"\t"<<blocks[i].alen<<"\t"<<blocks[i].blen<<"\t"<<blocks[i].achr<<"\t"<<blocks[i].bchr<<"\t"<<blocks[i].astate<<"\t"<<blocks[i].bstate<<"\t"<<blocks[i].state<<"\n";
-    }
-    mout.close();
+*/
+    std::cout<<"mUniSize: "<<blocks.size()<<"\n";
 
 
-
-
+blocks.insert( blocks.end(), uniBlocks.begin(), uniBlocks.end() );
+blocks.insert( blocks.end(), dupBlocks.begin(), dupBlocks.end() );
+blocks.insert( blocks.end(), redBlocks.begin(), redBlocks.end() );
 }
 
 
@@ -692,7 +782,7 @@ std::cout<<"ANNOTATING\n";
 
         if(check == 0){
         missed++;
-      //  std::cout<<dupBlocks[i].astart<<" "<<dupBlocks[i].bstart<<" "<<dupBlocks[i].achr<<"\n";
+    //    std::cout<<dupBlocks[i].astart<<" "<<dupBlocks[i].bstart<<" "<<dupBlocks[i].achr<<"\n";
         //std::cout<<i<<"\n";
         }
     }
@@ -700,6 +790,47 @@ std::cout<<"ANNOTATING\n";
 }
 
 void printDup(std::vector<BLOCK> const &dupBlocks, std::vector<BLOCK> const &uniBlocks){
-	//writeBlock()
+    int usize = uniBlocks.size();
+    int msize = dupBlocks.size();
 
+    for(int i = 0; i < usize; ++i){
+        if(uniBlocks[i].duplicates.size() != 0){
+            dupOutFile<<"#DUP\t"<<uniBlocks[i].astart<<"\t"<<uniBlocks[i].aend<<"\t"<<uniBlocks[i].achr<<
+                " - "<<uniBlocks[i].bstart<<"\t"<<uniBlocks[i].bend<<"\t"<<uniBlocks[i].bchr<<"\n";
+            for(int j = 0; j < uniBlocks[i].duplicates.size(); ++j){
+                dupOutFile<< dupBlocks[uniBlocks[i].duplicates[j]].astart<<"\t"<<dupBlocks[uniBlocks[i].duplicates[j]].aend<<
+                    "\t"<<dupBlocks[uniBlocks[i].duplicates[j]].bstart<<"\t"<<dupBlocks[uniBlocks[i].duplicates[j]].bend<<
+                    "\t"<<dupBlocks[uniBlocks[i].duplicates[j]].dir<<"\t"<<dupBlocks[uniBlocks[i].duplicates[j]].achr<<
+                    "\t"<<dupBlocks[uniBlocks[i].duplicates[j]].bchr<<"\n";
+            }
+        }
+    }
+}
+
+
+std::vector<int> getStateCount(std::vector<BLOCK> const &blocks){
+    int bsize = blocks.size();
+    int countUNI = 0;
+    int countDUP = 0;
+    int countRED = 0;
+
+    for( int i = 0; i < bsize; ++i){
+        if(blocks[i].state == UNI) ++countUNI;
+        if(blocks[i].state == DUP) ++countDUP;
+        if(blocks[i].state == RED) ++countRED;
+    }
+    std::vector<int> v = {countUNI, countDUP, countRED};
+    return v;
+
+}
+
+void sortBlocks(std::vector<BLOCK>& blocks){
+    std::stable_sort(blocks.begin(), blocks.end(), []( const BLOCK &lhs, const BLOCK &rhs){
+        return lhs.astart > rhs.astart;
+    });
+
+    std::stable_sort(blocks.begin(), blocks.end(), [](const BLOCK& lhs, const BLOCK& rhs) -> bool{
+        if(lhs.achr.compare(rhs.achr) <= 0) return true;
+        return false;
+    });
 }

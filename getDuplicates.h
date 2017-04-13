@@ -19,5 +19,7 @@ void filterBlocks(std::vector<BLOCK> &mBlocks, std::vector<BLOCK> const &blocks,
 void annotateDup(std::vector<BLOCK> &dupBlocks, std::vector<BLOCK> &uniBlocks, int threshold);
 void printDup(std::vector<BLOCK> const &dupBlocks, std::vector<BLOCK> const &uniBlocks);
 void filtermUni(std::vector<BLOCK> &blocks, int threshold);
+std::vector<int> getStateCount(std::vector<BLOCK> const &blocks);
+void sortBlocks(std::vector<BLOCK>& blocks);
 
 #endif /* GETDUPLICATES_H_ */
